@@ -1,3 +1,4 @@
+<script setup></script>
 <template>
   <div class="w-screen h-screen px-32 py-20 mx-auto max-w-screen-2xl">
     <div class="flex flex-col h-full">
@@ -16,6 +17,8 @@
               <P-Textfield
                 placeholder="Email"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                name="email"
+                rules="required|email"
               >
                 <template #leading>
                   <Icon
@@ -31,6 +34,8 @@
                 placeholder="Password"
                 type="password"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                name="password"
+                rules="required|password"
               >
                 <template #leading>
                   <Icon

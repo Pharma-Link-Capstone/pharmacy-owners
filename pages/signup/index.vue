@@ -31,6 +31,7 @@
               <P-Textfield
                 placeholder="Pharmacy Name"
                 field-class="!py-5 bg-gray-50 rounded-2xl"
+                rules="required"
               >
               </P-Textfield>
             </div>
@@ -38,6 +39,7 @@
               <P-Textfield
                 placeholder="Email"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                rules="required|email"
               >
                 <template #leading>
                   <Icon
@@ -49,6 +51,7 @@
               <P-Textfield
                 placeholder="Phone Number"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                rules="required|ethio_phone"
               >
                 <template #leading>
                   <Icon
@@ -63,6 +66,7 @@
                 placeholder="Password"
                 type="password"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                rules="required|password"
               >
                 <template #leading>
                   <Icon
@@ -77,6 +81,7 @@
                 placeholder="Confirm Password"
                 type="password"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
+                rules="required|password"
               >
                 <template #leading>
                   <Icon
