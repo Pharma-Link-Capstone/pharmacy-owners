@@ -1,6 +1,10 @@
-<script setup></script>
+<script setup>
+definePageMeta({
+  layout: "auth",
+});
+</script>
 <template>
-  <div class="w-screen h-screen px-32 py-20 mx-auto max-w-screen-2xl">
+  <div>
     <div class="flex flex-col h-full">
       <div>
         <h1 class="text-4xl font-bold red-hat-display">Pharma Link</h1>

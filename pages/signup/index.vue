@@ -1,5 +1,17 @@
+<script setup>
+definePageMeta({
+  layout: "auth",
+});
+
+const { handleSubmit } = useForm();
+
+const onSubmit = handleSubmit(() => {
+  console.log("submitted");
+});
+</script>
+
 <template>
-  <div class="w-screen h-screen px-32 py-20 mx-auto max-w-screen-2xl">
+  <div>
     <div class="flex flex-col h-full">
       <div>
         <h1 class="text-4xl font-bold text-right red-hat-display">
@@ -21,7 +33,7 @@
           </div>
         </div>
         <div class="">
-          <form @submit.prevent>
+          <form @submit.prevent="onSubmit">
             <h1 class="text-4xl poppins-regular !font-bold">Sign up</h1>
             <p class="mt-3 text-sm poppins-light">
               Let’s get you all set up so you can access your personal account.
@@ -32,6 +44,7 @@
                 placeholder="Pharmacy Name"
                 field-class="!py-5 bg-gray-50 rounded-2xl"
                 rules="required"
+                name="pharmacy_name"
               >
               </P-Textfield>
             </div>
@@ -40,6 +53,7 @@
                 placeholder="Email"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 rules="required|email"
+                name="email"
               >
                 <template #leading>
                   <Icon
@@ -52,6 +66,7 @@
                 placeholder="Phone Number"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 rules="required|ethio_phone"
+                name="phone_number"
               >
                 <template #leading>
                   <Icon
@@ -67,6 +82,7 @@
                 type="password"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 rules="required|password"
+                name="password"
               >
                 <template #leading>
                   <Icon
@@ -82,6 +98,7 @@
                 type="password"
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 rules="required|password"
+                name="confirm_password"
               >
                 <template #leading>
                   <Icon
@@ -94,13 +111,14 @@
 
             <div class="flex items-center justify-between">
               <P-CheckBox
+                name="terms"
                 label="I agree to all the Terms and Privacy Policies"
                 class="text-sm"
               ></P-CheckBox>
             </div>
 
             <div class="mt-5">
-              <button class="w-full py-3 text-white rounded bg-primary-600">
+              <button class="w-full py-3 text-white rounded-md bg-primary-600">
                 Create an account
               </button>
             </div>
@@ -112,7 +130,6 @@
               </p>
             </div>
           </form>
-
           <div class="mt-5">
             <p class="text-center">Or signup with</p>
             <div class="grid grid-cols-2 mt-5">
