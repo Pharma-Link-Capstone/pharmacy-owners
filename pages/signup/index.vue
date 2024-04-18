@@ -1,3 +1,9 @@
+<script setup>
+definePageMeta({
+  layout: "auth",
+});
+</script>
+
 <template>
   <div class="w-screen h-screen px-32 py-20 mx-auto max-w-screen-2xl">
     <div class="flex flex-col h-full">
