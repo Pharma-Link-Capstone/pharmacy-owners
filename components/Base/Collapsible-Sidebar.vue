@@ -36,7 +36,7 @@ const open = computed({
         <div class="fixed inset-0 overflow-hidden">
           <div class="absolute inset-0 overflow-hidden">
             <div
-              class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10"
+              class="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none"
             >
               <HeadlessTransitionChild
                 as="template"
@@ -48,22 +48,22 @@ const open = computed({
                 leave-to="translate-x-full"
               >
                 <HeadlessDialogPanel
-                  class="pointer-events-auto w-screen max-w-md"
+                  class="w-screen max-w-md pointer-events-auto"
                 >
                   <div
-                    class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl"
+                    class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl"
                   >
                     <div class="px-4 sm:px-6">
                       <div class="flex items-start justify-between">
                         <HeadlessDialogTitle
                           as="h3"
                           class="flex-1 text-base font-semibold leading-6 text-gray-900"
-                          ><slot name="Heading" />
+                          ><slot name="heading" />
                         </HeadlessDialogTitle>
-                        <div class="ml-3 flex h-7 items-center">
+                        <div class="flex items-center ml-3 h-7">
                           <button
                             type="button"
-                            class="relative rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+                            class="relative text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
                             @click="open = false"
                           >
                             <span class="absolute -inset-2.5" />
@@ -77,9 +77,9 @@ const open = computed({
                         </div>
                       </div>
                     </div>
-                    <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                    <div class="relative flex-1 px-4 mt-6 sm:px-6">
                       <!-- Your content -->
-                      <slot name="Content" />
+                      <slot name="content" />
                     </div>
                   </div>
                 </HeadlessDialogPanel>
