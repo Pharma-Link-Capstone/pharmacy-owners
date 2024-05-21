@@ -1,6 +1,62 @@
 <script setup>
+import mutator_anonymous from "~/composables/apollo/mutator_anonymous";
+import useNotify from "~/use/notify";
+
+import LoginMutation from "~/graphql/auth/login_mutation.gql";
+import { useAuthStore } from "~/stores/auth";
+
 definePageMeta({
   layout: "auth",
+});
+
+const router = useRouter();
+
+const { notify } = useNotify();
+
+const { onLogin } = useApollo();
+
+const { setUser, setToken } = useAuthStore();
+
+/*--------------- Define Variables -----------------*/
+const email = ref("");
+const password = ref("");
+const remember = ref(false);
+
+/*--------------- Login User -----------------*/
+const {
+  mutate: login,
+  loading: loginLoading,
+  onDone: onLoginDone,
+} = mutator_anonymous(LoginMutation);
+
+const { handleSubmit } = useForm({});
+const handleLogin = (values) => {
+  login({
+    credential: {
+      email: email.value,
+      password: password.value,
+    },
+  });
+};
+
+onLoginDone(async ({ data }) => {
+  try {
+    await onLogin(data?.login?.token, "authenticated");
+    setUser(data?.login?.user);
+    setToken(data?.login?.token);
+    notify({
+      title: "Login Successful",
+      description: "You have successfully logged in",
+      cardClass: "bg-green-100",
+    });
+    router.replace("/app");
+  } catch (error) {
+    notify({
+      title: "Login Failed",
+      description: "Invalid email or password",
+      cardClass: "bg-red-100",
+    });
+  }
 });
 </script>
 <template>
@@ -11,7 +67,7 @@ definePageMeta({
       </div>
       <div class="grid items-center flex-grow grid-cols-2 gap-20 mt-10">
         <div class="">
-          <form @submit.prevent>
+          <form @submit.prevent="handleLogin">
             <h1 class="text-4xl poppins-bold">Login</h1>
             <p class="mt-4 text-sm poppins-light">
               Login to access your PharmaLink account
@@ -23,6 +79,7 @@ definePageMeta({
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 name="email"
                 rules="required|email"
+                v-model="email"
               >
                 <template #leading>
                   <Icon
@@ -40,6 +97,7 @@ definePageMeta({
                 field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
                 name="password"
                 rules="required|password"
+                v-model="password"
               >
                 <template #leading>
                   <Icon
@@ -57,6 +115,7 @@ definePageMeta({
                   name="remember"
                   id="remember"
                   class="rounded"
+                  v-model="remember"
                 />
                 <label for="remember" class="ml-2">Remember me</label>
               </div>
@@ -66,8 +125,15 @@ definePageMeta({
             </div>
 
             <div class="mt-10">
-              <button class="w-full py-3 text-white rounded bg-primary-600">
+              <button
+                class="flex items-center justify-center w-full gap-2 py-3 text-white rounded bg-primary-600"
+              >
                 Login
+                <Icon
+                  v-if="loginLoading"
+                  name="eva:loader-2"
+                  class="text-xl animate-spin"
+                ></Icon>
               </button>
             </div>
 

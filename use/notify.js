@@ -4,7 +4,7 @@ import { computed, ref } from "vue";
 const store = ref({
   notification: { state: false },
 });
-export default function ({ timeout = 5000 } = {}) {
+export default function ({ timeout = 3000 } = {}) {
   const { start, stop } = useTimeoutFn(() => {
     store.value.notification = { state: false };
   }, timeout);

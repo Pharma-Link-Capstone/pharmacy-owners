@@ -87,6 +87,8 @@ const props = defineProps({
   searchPlaceholder: String,
   disabled: Boolean,
   placeholderStyle: String,
+  searchInputClass: String,
+  headerClass: String,
 });
 
 const {
@@ -122,6 +124,7 @@ const outside = useDebounceFn(() => {
 // open
 
 const open = () => {
+  if (props.disabled) return;
   show.value = true;
   input.value.focus();
 };
@@ -202,7 +205,7 @@ onMounted(() => {
         :id="id"
         :disabled="disabled"
         @click="open"
-        class="bg-white text-base relative w-full border-2 border-green-500 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1"
+        class="relative w-full py-2 pl-3 pr-10 text-base text-left bg-white border border-gray-200 rounded-md shadow-sm cursor-default focus:outline-none focus:ring-1"
         :class="[
           errorMessage
             ? 'focus:ring-red-500 focus:border-red-500 hover:border-red-500 border-red-500'
@@ -210,6 +213,7 @@ onMounted(() => {
           props.class ? props.class : '',
           disabled ? ' bg-gray-100 !cursor-not-allowed' : '',
           placeholder && !inputValue ? 'text-gray-500' : '',
+          props.headerClass ? props.headerClass : '',
         ]"
       >
         <div v-if="selectedItem" @click="show = true">
@@ -225,19 +229,20 @@ onMounted(() => {
       </button>
 
       <!-- -----------------------Chevron------------------- -->
-      <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+      <div class="absolute inset-y-0 right-0 flex items-center pr-3">
         <Icon name="tabler:chevron-down" color="gray" class="text-2xl" />
       </div>
     </div>
 
     <!-- -------------------------Body------------------ -->
     <ul
+      v-if="!disabled"
       ref="list_select"
       v-show="show"
       :class="supporter"
-      class="absolute z-50 w-full bg-white border-r-2 border-l-2 border-b-2 border-new-tale/50 scrollbar scrollbar-thin scrollbar-track-rounded-full scrollbar-track-primary shadow-lg max-h-56 h-auto rounded-br-xl rounded-b-xl text-base overflow-auto"
+      class="absolute z-50 w-full h-auto overflow-auto text-base bg-white border-b-2 border-l-2 border-r-2 shadow-lg border-new-tale/50 scrollbar scrollbar-thin scrollbar-track-rounded-full scrollbar-track-primary max-h-56 rounded-br-xl rounded-b-xl"
     >
-      <li class="flex justify-center items-center px-2">
+      <li class="flex items-center justify-center px-2">
         <input
           ref="input"
           @input="queryList"
@@ -246,7 +251,8 @@ onMounted(() => {
           autocomplete="off"
           type="text"
           :name="props.name"
-          class="my-1 shadow-sm focus:ring-new-tale focus:border-new-tale block sm:text-sm w-full border-gray-300 rounded-md font-body"
+          class="block w-full my-1 border-gray-300 rounded-md shadow-sm focus:ring-new-tale focus:border-new-tale sm:text-sm font-body"
+          :class="[props.searchInputClass]"
           :placeholder="props.searchPlaceholder || 'Search'"
         />
       </li>
@@ -255,7 +261,7 @@ onMounted(() => {
       <!-- <li class="h-1">
         <InputsProgress
           v-if="loading"
-          class="rounded-xl w-full"
+          class="w-full rounded-xl"
           color1="bg-new-tale/40"
           color2="bg-new-tale"
           color3="bg-dark-blue"
@@ -268,12 +274,12 @@ onMounted(() => {
         v-for="item in items"
         :key="item.id"
         @click="selectItem(item)"
-        class="border-b select-none relative py-3 px-3 hover:bg-blue-50 text-gray-500 cursor-pointer"
+        class="relative px-3 py-3 text-gray-500 border-b cursor-pointer select-none hover:bg-blue-50"
       >
         <slot name="row" :item="item">
           <div
             :class="[props.itemClass ? props.itemClass : '']"
-            class="flex items-center justify-between border-b select-none relative py-3 px-3 hover:bg-blue-50 cursor-pointer overflow-auto"
+            class="relative flex items-center justify-between px-3 py-3 overflow-auto border-b cursor-pointer select-none hover:bg-blue-50"
           >
             <span class="block capitalize break-words">{{ item.name }}</span>
             <!-- ---------------Check ------------>
@@ -294,7 +300,7 @@ onMounted(() => {
       <!-- ------------------------Option-------------------- -->
       <div
         v-if="!loading && items.length === 0"
-        class="text-black test-lg flex justify-center items-center pb-2"
+        class="flex items-center justify-center pb-2 text-black test-lg"
       >
         <slot name="option" :item="search" />
       </div>
@@ -303,7 +309,7 @@ onMounted(() => {
     <!-- -----------------------Error--------------------- -->
     <p
       :visible="errorMessage"
-      v-if="!props.hideDetail"
+      v-if="!props.hideDetail && errorMessage"
       class="mt-2 text-sm text-red-600 font-body"
       id="email-error"
     >

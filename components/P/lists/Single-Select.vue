@@ -79,6 +79,10 @@ const props = defineProps({
     required: false,
     default: "",
   },
+  showChevron: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const singleSelect = ref(null);
@@ -139,7 +143,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div class="relative" ref="singleSelect">
+  <div class="relative h-full" ref="singleSelect">
     <div class="flex gap-x-2">
       <!-- -----------------Label----------------- -->
 
@@ -162,7 +166,7 @@ onMounted(() => {
 
     <div
       @click="show = !show"
-      class="flex items-center justify-between rounded-md shadow-sm font-body border px-4 mb-2"
+      class="flex items-center justify-between px-4 mb-2 border rounded-md shadow-sm font-body"
       :class="[props.headerClass, errorMessage ? 'border-red-500' : '']"
     >
       <!------------------- Leading icon----------- -->
@@ -182,7 +186,10 @@ onMounted(() => {
 
       <!---------------- Chevron trailing icon ------------------->
 
-      <div class="flex items-center pointer-events-none py-3">
+      <div
+        class="flex items-center py-3 pointer-events-none"
+        v-if="showChevron"
+      >
         <Icon name="tabler:chevron-down" width="25" height="25" color="gray" />
       </div>
     </div>
@@ -190,14 +197,14 @@ onMounted(() => {
     <!-------------------Body-------------------  -->
     <ul
       v-show="show"
-      class="absolute z-50 overflow-y-scroll overflow-x-hidden w-full bg-white border shadow max-h-56 h-auto rounded-md text-base"
+      class="absolute z-50 w-full h-auto overflow-x-hidden overflow-y-scroll text-base bg-white border rounded-md shadow max-h-56"
       :class="[props.listContainerClass ? props.listContainerClass : '']"
     >
       <li v-for="item in items" :key="item.id" @click="set(item)">
         <slot name="row" :item="item">
           <div
             :class="[props.itemClass ? props.itemClass : '']"
-            class="flex items-center justify-between border-b select-none relative py-3 px-3 hover:bg-blue-50 cursor-pointer overflow-auto"
+            class="relative flex items-center justify-between px-3 py-3 overflow-auto border-b cursor-pointer select-none hover:bg-blue-50"
           >
             <span class="block capitalize break-words">{{ item.name }}</span>
 

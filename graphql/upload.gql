@@ -1,0 +1,5 @@
+mutation UploadFiles($files: [String!]!) {
+  uploadFiles(arg1: { files: $files }) {
+    urls
+  }
+}

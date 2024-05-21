@@ -3,7 +3,10 @@ import { ref, watch } from "vue";
 import { useField } from "vee-validate";
 
 const props = defineProps({
-  modelValue: [String, Date],
+  modelValue: {
+    type: [String, Date],
+    required: true,
+  },
   name: {
     type: String,
     default: undefined,
@@ -45,6 +48,31 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  fieldClass: {
+    type: String,
+    default: "",
+    required: false,
+  },
+  trailingIcon: {
+    type: String,
+    default: "",
+    required: false,
+  },
+  leadingIcon: {
+    type: String,
+    default: "",
+    required: false,
+  },
+  trailingIconClass: {
+    type: String,
+    default: "",
+    required: false,
+  },
+  leadingIconClass: {
+    type: String,
+    default: "",
+    required: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -74,13 +102,22 @@ const input = (e) => {
 
 <template>
   <div>
-    <label :class="labelClass" :for="id" class="block"
+    <label v-if="label" :class="labelClass" :for="id" class="block"
       >{{ label }}
       <span v-show="rules !== '' && props.showStar" class="text-red-500"
         >*</span
       ></label
     >
+
+    <slot name="label"></slot>
     <div class="relative rounded-md shadow-sm">
+      <icon
+        v-if="leadingIcon"
+        :name="leadingIcon"
+        class="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2"
+        :class="leadingIconClass"
+      />
+      <slot name="leading"></slot>
       <input
         v-model="inputValue"
         :disabled="disabled"
@@ -98,10 +135,18 @@ const input = (e) => {
           props.disabled
             ? 'bg-gray-100 border-gray-200 hover:border-gray-200 text-gray-400 pointer-events-none shadow-none'
             : ' focus:ring-1',
+          props.fieldClass ? props.fieldClass : '',
         ]"
-        class="block w-full text-secondary placeholder-primary focus:outline-none text-base rounded-md"
+        class="block w-full text-base rounded-md text-secondary placeholder-primary focus:outline-none"
         aria-invalid="true"
         aria-describedby="date-error"
+      />
+      <slot name="trailing"></slot>
+      <icon
+        v-if="trailingIcon"
+        :name="trailingIcon"
+        class="absolute text-gray-400 -translate-y-1/2 right-2 top-1/2"
+        :class="trailingIconClass"
       />
     </div>
     <p

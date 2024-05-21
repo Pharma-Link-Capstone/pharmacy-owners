@@ -1,0 +1,13 @@
+mutation Login($credential: EmailLoginInput!) {
+  login(arg1: $credential) {
+    token: hasura_access_token
+    user {
+      first_name
+      last_name
+      email
+      media {
+        url
+      }
+    }
+  }
+}

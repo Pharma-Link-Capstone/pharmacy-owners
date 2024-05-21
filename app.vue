@@ -1,6 +1,7 @@
 <template>
   <div>
     <NuxtLayout>
+      <P-Notification />
       <NuxtLoadingIndicator />
       <NuxtPage />
     </NuxtLayout>

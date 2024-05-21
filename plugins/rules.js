@@ -4,22 +4,21 @@ export default defineNuxtPlugin((vueApp) => {
   defineRule("onerequired", (value, [], ctx) => {
     return !!value || value?.length || "At least one selection required";
   }),
-    defineRule("required", (value, [], ctx) => {
-      return !!value || value?.length || "Field Required";
-    }),
+    defineRule("required_for", (value, _, ctx) => {
+      if (value === null || value === undefined || value === "") {
+        return "Field Required";
+      }
+      return value?.length ? value?.length : "Field Required";
+    });
+  defineRule("required", (value, [], ctx) => {
+    return !!value || value?.length || "Field Required";
+  }),
     defineRule("boolReq", (value, [], ctx) => {
       return typeof value == "boolean" || "Field Required";
     });
-  defineRule("fayda", (value, [], ctx) => {
-    return !value || value.length == 10 || "Fayda ID must be 10 Digits";
+  defineRule("array_object_required", (value, [], ctx) => {
+    return value?.length || "Please select at least one option";
   }),
-    defineRule("verify_fayda", (value, [], ctx) => {
-      console.log("rule value", value);
-      return value || "Verify your Id";
-    }),
-    defineRule("array_object_required", (value, [], ctx) => {
-      return value?.length || "Field Required";
-    }),
     defineRule("yes_or_no", (value, [], ctx) => {
       return value?.length || "Field Required";
     }),
@@ -63,15 +62,21 @@ export default defineNuxtPlugin((vueApp) => {
       "Field Required"
     );
   }),
+    defineRule("validCoordinates", (value) => {
+      const regex = /^[-+]?\d*\.?\d+,\s*[-+]?\d*\.?\d+$/;
+
+      if (!value?.match(regex)) {
+        return "Invalid coordinates format";
+      }
+
+      return true;
+    }),
     defineRule("number", (value) => {
       return !value || /^[0-9]+$/.test(value) || "Number only";
     }),
-    defineRule("numberFromZero", (value, [], ctx) => {
-      return /^(?:0|[1-9]\d*)$/.test(value) || "Number only";
-    });
-  defineRule("numrange", (value) => {
-    return !value || /^[0-9-]+$/.test(value) || "Number only";
-  }),
+    defineRule("numrange", (value) => {
+      return !value || /^[0-9-]+$/.test(value) || "Number only";
+    }),
     defineRule("email", (value) => {
       return (
         !value ||
@@ -88,17 +93,9 @@ export default defineNuxtPlugin((vueApp) => {
         "Not valid phone number"
       );
     }),
-    defineRule("minLength", (value, [], context) => {
-      if (value.length >= context.rule.params[0]) {
-        return true;
-      } else {
-        return `${context.field} is must be greater than ${context.rule.params[0]}`;
-      }
-    });
-
-  defineRule("ethiopian_phone_number", (value) => {
-    return !value || /^(7|9)\d{8}$/.test(value) || "Not valid phone number";
-  }),
+    defineRule("ethiopian_phone_number", (value) => {
+      return !value || /^(7|9)\d{8}$/.test(value) || "Not valid phone number";
+    }),
     defineRule("ethio_phone", (value) => {
       return !value || /^(7|9)\d{8}$/.test(value) || "Not valid phone number";
     }),
@@ -107,5 +104,10 @@ export default defineNuxtPlugin((vueApp) => {
     }),
     defineRule("confirmed", (value, [other]) => {
       return !value || value === other || "Password is not the same";
+    }),
+    defineRule("url", (value) => {
+      return (
+        !value || /^(http|https):\/\/[^ "]+$/.test(value) || "Not valid URL"
+      );
     });
 });

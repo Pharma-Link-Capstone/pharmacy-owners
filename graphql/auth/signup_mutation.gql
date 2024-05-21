@@ -1,0 +1,6 @@
+mutation RegitrationMutation($data: RegisterInput!) {
+  register(arg1: $data) {
+    message
+    success
+  }
+}

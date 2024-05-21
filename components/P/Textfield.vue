@@ -169,7 +169,7 @@ watch(
       {{ props.label }}
     </label>
     <div
-      class="relative rounded-md overflow-clip font-body shadow-sm group"
+      class="relative rounded-md shadow-sm overflow-clip font-body group"
       :class="props.bodyClass"
     >
       <!-- -----------------Leading Class--------------- -->
@@ -177,7 +177,7 @@ watch(
 
       <div
         v-if="props.leadingIcon"
-        class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-4"
+        class="absolute inset-y-0 left-0 flex items-center px-4 pointer-events-none"
         :class="[
           props.leadingIconContainerClass,
           iconBackground && !errorMessage
@@ -204,7 +204,7 @@ watch(
         :class="[
           errorMessage
             ? 'border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-red-500'
-            : 'border-[1px]  border-gray-300 group-hover:border-new-tale focus:border-new-tale focus:ring-new-tale disabled:bg-gray-100 disabled:cursor-not-allowed',
+            : 'border-[1px]  border-gray-300  focus:border-red-600 focus:ring- disabled:bg-gray-100 disabled:cursor-not-allowed',
           props.fieldClass ? props.fieldClass : '',
           props.trailingIcon ? 'pr-0' : '',
           props.placeholderStyle
@@ -214,7 +214,7 @@ watch(
           props.type == 'password' ? 'pr-7' : '',
           props.leadingIcon ? 'pl-14' : '',
         ]"
-        class="block w-full rounded-md font-body text-base text-gray-500 placeholder-gray-500 focus:outline-none"
+        class="block w-full text-base text-gray-500 placeholder-gray-500 rounded-md font-body focus:outline-none"
         :placeholder="props.placeholder"
         aria-invalid="true"
         aria-describedby="email-error"
@@ -230,7 +230,7 @@ watch(
         @click="togglePassword()"
       >
         <Icon
-          class="h-5 w-5"
+          class="w-5 h-5"
           :class="[type === 'password' ? 'text-gray-400' : 'text-new-tale']"
           :name="props.trailingIcon"
         ></Icon>
@@ -243,14 +243,14 @@ watch(
         @click="emit('trailingIconClick')"
       >
         <Icon
-          class="h-5 w-5 text-gray-400"
+          class="w-5 h-5 text-gray-400"
           :class="props.trailingIconClass"
           :name="props.trailingIcon"
         ></Icon>
       </div>
     </div>
     <p
-      class="col-span-5 mt-1 font-body text-sm text-red-600 duration-300 transition-all"
+      class="col-span-5 mt-1 text-sm text-red-600 transition-all duration-300 font-body"
       :class="errorMessage ? 'h-5' : 'h-0'"
       id="email-error"
       :visible="errorMessage"

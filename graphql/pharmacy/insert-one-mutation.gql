@@ -1,0 +1,5 @@
+mutation InsertPharmacyOne($object: pharmacies_insert_input!) {
+  insert_pharmacies_one(object: $object) {
+    id
+  }
+}

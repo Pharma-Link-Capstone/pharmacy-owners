@@ -19,6 +19,8 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-lodash",
     "@pinia-plugin-persistedstate/nuxt",
+    "@nuxtjs/apollo",
+    "nuxt3-leaflet",
   ],
   veeValidate: {
     // disable or enable auto imports
@@ -52,5 +54,17 @@ export default defineNuxtConfig({
     classPrefix: "",
     classSuffix: "",
     storageKey: "color-theme-mode",
+  },
+  apollo: {
+    autoImports: true,
+    authType: "Bearer",
+    authHeader: "Authorization",
+    tokenStorage: "cookie",
+    proxyCookies: true,
+
+    clients: {
+      anonymous: "./apollo/anonymous.js",
+      authenticated: "./apollo/authenticated.js",
+    },
   },
 });
