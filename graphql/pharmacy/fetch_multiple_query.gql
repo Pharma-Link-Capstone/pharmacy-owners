@@ -1,0 +1,85 @@
+query GetPharmacies(
+  $filter: pharmacies_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [pharmacies_order_by!]
+) {
+  pharmacies(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
+    id
+    name
+    is_verified
+    is_open
+    logo_url
+    license_url
+    description
+    medicines_count: pharmacy_medicines_aggregate {
+      aggregate {
+        count
+      }
+    }
+    phoneNumber: phone_number_1
+    alternativePhoneNumber: phone_number_2
+    status
+    pharmacy_social_medias {
+      id
+      url
+      social_media {
+        icon_url
+        id
+        name
+      }
+    }
+    summary: aggregate_summary {
+      avg_price
+      max_price
+      min_price
+      avg_rating
+      total_bookmarks
+      total_likes
+      total_reviews
+      view_count
+    }
+    location {
+      location
+      area {
+        id
+        name
+        city {
+          id
+          name
+          region {
+            id
+            name
+          }
+        }
+      }
+    }
+    visits: pharmacy_visits_aggregate {
+      aggregate {
+        count
+      }
+    }
+    reviews_aggregate: pharmacy_reviews_aggregate {
+      aggregate {
+        count
+      }
+    }
+    reviews: pharmacy_reviews {
+      id
+      comment
+      rating
+      user {
+        first_name
+        last_name
+        media {
+          url
+        }
+      }
+    }
+  }
+}

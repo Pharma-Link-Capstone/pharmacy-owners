@@ -14,7 +14,7 @@ const props = defineProps({
   },
   id: String,
   rules: {
-    type: String,
+    type: [Object, Array, String],
     default: "",
     required: false,
   },
@@ -39,11 +39,7 @@ const props = defineProps({
       '<svg xmlns="http://www.w3.org/2000/svg" style="color:#203468;transform:scale(.5)" fill="#203468" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
     required: false,
   },
-  rules: {
-    type: String,
-    default: "",
-    required: false,
-  },
+
   showStar: {
     type: Boolean,
     default: true,

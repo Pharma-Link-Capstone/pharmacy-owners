@@ -49,6 +49,12 @@ const props = defineProps({
   supportHeaderClass: {
     type: String,
   },
+  noItemClass: {
+    type: String,
+  },
+  fullRowClass: {
+    type: String,
+  },
 });
 
 const emits = defineEmits([
@@ -60,7 +66,7 @@ const emits = defineEmits([
 
 const _get = useGet;
 const _set = useSet;
-const _sort = ref({});
+const _sort = ref([]);
 onMounted(() => {
   props.sort.forEach((item) => {
     _sort.value = { ..._sort.value, ...item };
@@ -142,9 +148,9 @@ function rowCheckedAll() {
   <!-- component -->
   <div
     :class="supporterClass"
-    class="sm:rounded-lg relative border border-table-border"
+    class="relative border sm:rounded-lg border-table-border"
   >
-    <HProgress
+    <P-Progress
       v-if="loading"
       height="h-[6px]"
       :color1="color1"
@@ -159,7 +165,7 @@ function rowCheckedAll() {
         <tr>
           <th
             v-if="hasCheckBox"
-            class="text-xs 2xl:px-4 px-2 font-bold text-left items-center text-black 2xl:py-5 hidden py-3 lg:table-cell tracking-wider uppercase"
+            class="items-center hidden px-2 py-3 text-xs font-bold tracking-wider text-left text-black uppercase 2xl:px-4 2xl:py-5 lg:table-cell"
             :class="rowHeadStyle"
           >
             <input
@@ -167,20 +173,20 @@ function rowCheckedAll() {
               type="checkbox"
               @click.prevent="rowCheckedAll()"
               :checked="checkCheckedAll"
-              class="accent-teal-800 focus:ring-new-tale h-4 w-4 text-primary border-new-tale/50 rounded text-md cursor-pointer"
+              class="w-4 h-4 rounded cursor-pointer accent-teal-800 focus:ring-new-tale text-primary border-new-tale/50 text-md"
             />
             <input
               v-else
               type="checkbox"
               @click.prevent="rowCheckedAll()"
               :checked="checkCheckedAll"
-              class="accent-teal-800 focus:ring-new-tale h-4 w-4 text-primary border-new-tale/50 rounded text-md cursor-pointer"
+              class="w-4 h-4 rounded cursor-pointer accent-teal-800 focus:ring-new-tale text-primary border-new-tale/50 text-md"
             />
           </th>
           <th
-            class="text-xs 2xl:px-4 px-3 font-bold text-left text-black 2xl:py-5 py-3 hidden lg:table-cell tracking-wider uppercase"
+            class="hidden px-3 py-3 text-xs font-bold tracking-wider text-left text-black uppercase 2xl:px-4 2xl:py-5 lg:table-cell"
             v-for="(header, i) in headers"
-            :key="header.value"
+            :key="i"
             :class="rowHeadStyle"
           >
             <span class="cursor-pointer font-body" @click="sort_by(header)">
@@ -207,17 +213,12 @@ function rowCheckedAll() {
           </th>
         </tr>
       </thead>
-      <span
-        v-if="!loading"
-        class="text-base md:text-xl xl:text-2xl 3xl:text-4xl font-light centering"
-        :class="[items?.length ? 'hidden' : 'flex']"
-      >
-        No Result Found
-      </span>
+
       <tbody>
         <tr
           :class="[
             ' border-gray-200 rounded last:border-0 hover:bg-gray-50 cursor-pointer',
+            fullRowClass,
           ]"
           v-for="(item, idx) in items"
           :key="item.id"
@@ -226,12 +227,12 @@ function rowCheckedAll() {
               $emit('click:row', item);
             }
           "
-          class="lg:hover:bg-blue-50 flex lg:table-row flex-row flex-wrap lg:flex-no-wrap mb-0"
+          class="flex flex-row flex-wrap mb-0 lg:hover:bg-blue-50 lg:table-row lg:flex-no-wrap"
         >
           <slot name="row" :item="item" :headers="headers" :get="_get">
             <td
               v-if="hasCheckBox"
-              class="w-full lg:w-auto block lg:table-cell relative lg:static border-b rounded py-4 2xl:px-4 px-2 2xl:text-sm text-xs"
+              class="relative block w-full px-2 py-4 text-xs border-b rounded lg:w-auto lg:table-cell lg:static 2xl:px-4 2xl:text-sm"
               :class="rowStyle"
             >
               <input
@@ -239,14 +240,14 @@ function rowCheckedAll() {
                 type="checkbox"
                 :checked="checkedItems.includes(item.id)"
                 @click.stop="rowChecked(item, item.id)"
-                class="accent-teal-800 focus:ring-new-tale h-4 w-4 text-primary border-new-tale/50 rounded text-md cursor-pointer"
+                class="w-4 h-4 rounded cursor-pointer accent-teal-800 focus:ring-new-tale text-primary border-new-tale/50 text-md"
               />
               <input
                 v-else
                 type="checkbox"
                 :checked="checkedItems.includes(item.id)"
                 @click.stop="rowChecked(item, item.id)"
-                class="accent-accent-teal-800 focus:ring-new-tale h-4 w-4 text-new-tale border-new-tale/50 rounded text-md cursor-pointer"
+                class="w-4 h-4 rounded cursor-pointer accent-accent-teal-800 focus:ring-new-tale text-new-tale border-new-tale/50 text-md"
               />
             </td>
 
@@ -254,21 +255,21 @@ function rowCheckedAll() {
               v-for="header in headers"
               :key="header.value"
               :class="rowStyle"
-              class="w-full font-body lg:w-auto block lg:table-cell relative lg:static text-left text-gray-900 rounded py-4 2xl:px-4 px-2 2xl:text-sm text-xs"
+              class="relative block w-full px-2 py-4 text-xs text-left text-gray-900 rounded font-body lg:w-auto lg:table-cell lg:static 2xl:px-4 2xl:text-sm"
             >
               <span
-                class="lg:hidden text-left w-1/3 align-middle inline-block text-sm font-normal text-secondary-2 font-body"
+                class="inline-block w-1/3 text-sm font-normal text-left align-middle lg:hidden text-secondary-2 font-body"
                 >{{ header.text }}
               </span>
               <slot :item="item" :name="header.value">
                 <span
-                  class="align-middle inline-block whitespace-nowrap font-body lg:w-7/12 xl:w-9/12"
+                  class="inline-block align-middle whitespace-nowrap font-body lg:w-7/12 xl:w-9/12"
                   v-if="header.value == 'roll_no'"
                 >
                   {{ idx + 1 }}
                 </span>
                 <span
-                  class="align-middle inline-block overflow-ellipsis overflow-hidden whitespace-nowrap font-body lg:w-7/12 xl:w-9/12 truncate"
+                  class="inline-block overflow-hidden truncate align-middle overflow-ellipsis whitespace-nowrap font-body lg:w-7/12 xl:w-9/12"
                   v-else-if="header.value == 'full_name'"
                 >
                   <!-- <PersonTypeIndicator :type="item.type" /> -->
@@ -276,7 +277,7 @@ function rowCheckedAll() {
                   {{ _get(item, header.value) || "-" }}
                 </span>
                 <span
-                  class="lg:w-10/12 xl:w-11/12 align-middle inline-block overflow-ellipsis overflow-hidden whitespace-nowrap font-body truncate"
+                  class="inline-block overflow-hidden truncate align-middle lg:w-10/12 xl:w-11/12 overflow-ellipsis whitespace-nowrap font-body"
                   v-else
                 >
                   {{ _get(item, header.value) || "-" }}
@@ -287,6 +288,9 @@ function rowCheckedAll() {
         </tr>
       </tbody>
     </table>
+    <div :class="[items?.length ? 'hidden' : 'flex w-full ', noItemClass]">
+      <P-NoItems v-if="!loading" text="No Result Found" />
+    </div>
   </div>
 </template>
 <style scoped>

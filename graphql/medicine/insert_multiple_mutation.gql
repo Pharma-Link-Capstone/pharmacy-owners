@@ -1,0 +1,5 @@
+mutation InsertMedicines($objects: [pharmacy_medicines_insert_input!]!) {
+  insert_pharmacy_medicines(objects: $objects) {
+    affected_rows
+  }
+}

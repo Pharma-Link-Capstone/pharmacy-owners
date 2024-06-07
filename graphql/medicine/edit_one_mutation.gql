@@ -1,0 +1,5 @@
+mutation UpdateMedicine($id: uuid!, $object: pharmacy_medicines_set_input!) {
+  update_pharmacy_medicines_by_pk(pk_columns: { id: $id }, _set: $object) {
+    id
+  }
+}

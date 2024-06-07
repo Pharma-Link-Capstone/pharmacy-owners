@@ -1,0 +1,16 @@
+query GetRegion(
+  $filter: basic_regions_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [basic_regions_order_by!] = [{ name: asc }]
+) {
+  regions: basic_regions(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
+    name
+    id
+  }
+}

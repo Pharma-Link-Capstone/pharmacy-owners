@@ -79,6 +79,10 @@ const props = defineProps({
   text: { type: String },
   fileTypes: { type: String },
   wrapperClass: String,
+  accept: {
+    type: String,
+    default: "image/*",
+  },
 });
 
 const {
@@ -229,17 +233,17 @@ const crop = () => {
         "
         @change="change"
       />
-      <div class="flex justify-center space-x-10 py-5">
+      <div class="flex justify-center py-5 space-x-10">
         <button
           @click="crop"
-          class="flex items-center space-x-2 py-2 px-5 bg-primary text-primary-600 rounded-md shadow-full hover:shadow-lg duration-200"
+          class="flex items-center px-5 py-2 space-x-2 duration-200 rounded-md bg-primary text-primary-600 shadow-full hover:shadow-lg"
         >
           <Icon name="material-symbols:crop" class="text-2xl"></Icon>
           <p>Crop and Upload</p>
         </button>
         <button
           @click="openModal = false"
-          class="shadow-full hover:shadow-lg duration-200 flex items-center space-x-1 py-2 px-5 text-primary bg-gray-100 ring-1 ring-gray-300 rounded-md"
+          class="flex items-center px-5 py-2 space-x-1 duration-200 bg-gray-100 rounded-md shadow-full hover:shadow-lg text-primary ring-1 ring-gray-300"
         >
           <p>Cancel</p>
         </button>
@@ -247,7 +251,7 @@ const crop = () => {
     </template>
   </Modals-Modal>
   <div
-    class="flex flex-col w-auto border border-gray-400 border-dashed shadow rounded-md pb-12"
+    class="flex flex-col w-auto pb-12 border border-gray-400 border-dashed rounded-md shadow"
     @dragover="handleDragOver"
     @drop="onFileSelect"
   >
@@ -264,22 +268,22 @@ const crop = () => {
     </div>
     <div
       v-if="uploaded && !loading"
-      class="flex items-center rounded-md w-full justify-center relative gap-3"
+      class="relative flex items-center justify-center w-full gap-3 rounded-md"
     >
       <div
         v-if="fileType == 'image'"
-        class="overflow-hidden justify-center flex"
+        class="flex justify-center overflow-hidden"
         :class="imageClass"
       >
         <img
           role="presentation"
-          alt="logo"
           :src="uploaded"
           class="object-contain bg-white"
+          alt="logo"
         />
       </div>
       <div v-else class="w-full">
-        <Icon name="uiw:file-pdf" class="text-8xl text-red-500"></Icon>
+        <Icon name="uiw:file-pdf" class="text-red-500 text-8xl"></Icon>
         <div>
           <p>{{ fileInfo.name }}</p>
           <p>{{ fileInfo.size }}</p>
@@ -287,11 +291,11 @@ const crop = () => {
       </div>
       <div
         @click="open"
-        class="absolute cursor-pointer flex text-white justify-center items-center gap-x-2 -bottom-10 capitalize bg-primary px-4 py-1 rounded-md group"
+        class="absolute flex items-center justify-center px-4 py-1 text-white capitalize rounded-md cursor-pointer gap-x-2 -bottom-10 bg-primary group"
       >
         <Icon
           name="tdesign:refresh"
-          class="text-xl group-hover:rotate-45 duration-200"
+          class="text-xl duration-200 group-hover:rotate-45"
         ></Icon>
         Change
       </div>
@@ -303,7 +307,7 @@ const crop = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          class="w-8 h-8 mr-2 text-gray-200 animate-spin  :text-gray-600 fill-primary"
+          class="w-8 h-8 mr-2 text-gray-200 animate-spin :text-gray-600 fill-primary"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -322,26 +326,22 @@ const crop = () => {
     </div>
     <div
       v-else
-      class="flex flex-col w-full justify-center items-center space-y-4"
+      class="flex flex-col items-center justify-center w-full space-y-4"
     >
-      <Icon name="iconoir:add-media-image" class="text-4xl  :text-white" />
-      <p class="px-5 w-full text-center text-new-tale pt-3">
-        <span @click="open" class="cursor-pointer text-blue-600"
+      <Icon name="iconoir:add-media-image" class="text-4xl :text-white" />
+      <p class="w-full px-5 pt-3 text-center text-new-tale">
+        <span @click="open" class="text-blue-600 cursor-pointer"
           >upload Image
         </span>
-        <span class="text-secondary-text  :text-white">
-          or Drag and Drop</span
-        >
+        <span class="text-secondary-text :text-white"> or Drag and Drop</span>
       </p>
-      <p
-        class="font-poppins font-thin text-sm text-secondary-text  :text-white"
-      >
+      <p class="text-sm font-thin font-poppins text-secondary-text :text-white">
         {{ fileTypesMessage }}
       </p>
     </div>
   </div>
   <p
-    class="col-span-5 mt-1 text-left font-body text-sm text-red-600 duration-300 transition-all"
+    class="col-span-5 mt-1 text-sm text-left text-red-600 transition-all duration-300 font-body"
     :class="errorMessage2 ? 'h-5' : 'h-0'"
     id="email-error"
     :visible="errorMessage2"
@@ -349,7 +349,7 @@ const crop = () => {
     {{ errorMessage2 }} &nbsp;
   </p>
   <p
-    class="col-span-5 mt-1 text-left font-body text-sm text-red-600 duration-300 transition-all"
+    class="col-span-5 mt-1 text-sm text-left text-red-600 transition-all duration-300 font-body"
     :class="errorMessage ? 'h-5' : 'h-0'"
     id="email-error"
     :visible="errorMessage"

@@ -1,12 +1,27 @@
 export default function () {
   const response = {
     invalid_username_or_password: {
-      title: "invalid_username_or_password",
-      description: "please_try_again_with_correct_credentials",
+      title: "invalid credentials",
+      description: "please try_again_with_correct_credentials",
     },
     unexpected: {
-      title: "invalid_username_or_password",
-      description: "please_try_again_with_correct_credentials",
+      title: "Invalid username or password",
+      description: "please try again with correct credentials",
+      cardClass: "bg-red-100",
+    },
+    "Unverified account unexpected": {
+      title: "Unverified account",
+      description: "please check your email to verify your account",
+      cardClass: "bg-red-100",
+    },
+    users_phone_number_key: {
+      title: "Phone number already exists",
+      description: "please try again with another phone number",
+      cardClass: "bg-red-100",
+    },
+    users_email_key: {
+      title: "Email already exists",
+      description: "please try again with another email",
       cardClass: "bg-red-100",
     },
     access_denied: {
@@ -31,7 +46,7 @@ export default function () {
     },
     "Could not verify JWT: JWTExpired invalid-jwt": {
       title: "session expired",
-      description: "session expired please login again", 
+      description: "session expired please login again",
       cardClass: "bg-red-100",
     },
   };
@@ -76,6 +91,8 @@ export default function () {
       msg_compilation += err;
       return err;
     }
+
+    console.log("errors", msg_compilation);
 
     return msg_compilation;
   };

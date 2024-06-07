@@ -1,0 +1,16 @@
+query GetAreas(
+  $filter: basic_areas_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [basic_areas_order_by!] = [{ name: asc }]
+) {
+  areas: basic_areas(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
+    name
+    id
+  }
+}

@@ -11,34 +11,38 @@ const emit = defineEmits(["update:modelValue", "finish", "prev"]);
 const openModal = ref(false);
 const errorMessage = ref("");
 
-const pharmacy = computed({
-  get: () => props.modelValue,
-  set: (value) => {},
+const license_url = computed({
+  get: () => props.modelValue.license_url || [],
+  set: (value) => {
+    emit("update:modelValue", {
+      ...props.modelValue,
+      license_url: value,
+    });
+  },
 });
 
 const onSubmit = (e) => {
-  if (!pharmacy.value.license) {
+  if (!license_url.value) {
     errorMessage.value = "Please upload your license";
     return;
   }
   e.preventDefault();
-  emit("update:modelValue", pharmacy.value);
   emit("finish");
 };
 </script>
 <template>
-  <P-FileUploadModal
+  <!-- <P-FileUploadModal
     :max-file-size="10000000"
     :maxFiles="1"
-    v-model="pharmacy.license"
+    v-model="license_url"
     v-model:open-modal="openModal"
     name="license"
     rules="required"
     accept="application/pdf,image/*"
-  />
+  /> -->
   <div>
     <div class="flex flex-col items-center justify-center gap-3 text-gray-600">
-      <img
+      <!-- <img
         src="/images/illustrations/upload.svg"
         alt=""
         class="w-[253px] h-[264px]"
@@ -54,7 +58,34 @@ const onSubmit = (e) => {
         that we trust upon them so please upload a pdf/jpg/doc file for you
         license
       </p>
-      <p class="text-red-600">{{ errorMessage }}</p>
+      <p class="text-red-600">{{ errorMessage }}</p> -->
+      <P-FileUploadWrapper
+        v-model="license_url"
+        name="pharmacy_license"
+        rules="required"
+        placeholder="Upload images PNG, JPG and GIF files are allowed"
+        accept="image/*,application/pdf"
+      >
+        <template #wrapper>
+          <img
+            src="/images/illustrations/upload.svg"
+            alt=""
+            class="w-[253px] h-[264px]"
+          />
+          <h2 class="text-lg">
+            Upload your legal license:
+            <button class="text-primary-600" @click="openModal = true">
+              Browse
+            </button>
+          </h2>
+          <p class="text-sm max-w-[50ch] text-center">
+            Your legal license help us to guaranty all pharmacy are real
+            pharmacies that we trust upon them so please upload a pdf/jpg/doc
+            file for you license
+          </p>
+          <p class="text-red-600">{{ errorMessage }}</p>
+        </template>
+      </P-FileUploadWrapper>
     </div>
     <!-- Actions -->
     <div class="flex items-center justify-between mt-8">

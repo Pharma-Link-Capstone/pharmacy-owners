@@ -1,0 +1,6 @@
+mutation addMedias($input: basic_medias_insert_input!) {
+  new_media: insert_basic_medias_one(object: $input) {
+    id
+    url
+  }
+}

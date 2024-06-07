@@ -1,0 +1,9 @@
+mutation UpdatePharmacy($id: uuid!, $object: pharmacy_set_input!) {
+  delete_pharmacy_social_medias(where: { pharmacy_id: { _eq: $id } }) {
+    affected_rows
+  }
+
+  update_pharmacies_by_pk(pk_columns: { id: $id }, _set: $object) {
+    id
+  }
+}

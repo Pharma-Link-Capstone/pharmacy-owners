@@ -1,0 +1,16 @@
+query GetMedicines(
+  $filter: medicines_bool_exp
+  $limit: Int
+  $offset: Int
+  $order: [medicines_order_by!]
+) {
+  medicines(where: $filter, limit: $limit, offset: $offset, order_by: $order) {
+    id
+    name
+    composition
+    image_url
+    manufacturer
+    side_effects
+    uses
+  }
+}

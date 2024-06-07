@@ -61,13 +61,13 @@ onMounted(() => {
       <HeadlessTabList
         @scroll="moveIndicator"
         as="div"
-        class="flex h-[1.6rem] md:h-[1.5rem] iphone5:justify-between space-x-4 lg:justify-start scroll lg:space-x-16 overflow-x-scroll overflow-y-hidden"
+        class="flex mt-5 space-x-4 overflow-x-auto iphone5:justify-between lg:justify-start scroll lg:space-x-16"
       >
         <HeadlessTab
           :id="`tab-${index}`"
           :class="[
             selectedTab === index
-              ? 'text-red-600 '
+              ? 'text-primary-600 '
               : 'text-gray-400 dark:text-white',
             'outline-none focus:outline-none duration-500 ease-in-out leading-none  md:text-xl cursor-pointer whitespace-nowrap',
           ]"
@@ -79,11 +79,11 @@ onMounted(() => {
       </HeadlessTabList>
       <div
         ref="indicatorContainer"
-        class="relative w-full border-b dark:border-sheger_brown-100 py-1 xl:py-2 overflow-hidden"
+        class="relative w-full py-1 overflow-hidden border-b dark:border-sheger_brown-100 xl:py-2"
       >
         <div
           ref="indicator"
-          class="absolute duration-200 left-0 bottom-0 h-0.5 bg-red-600"
+          class="absolute duration-200 left-0 bottom-0 h-0.5 bg-primary-600"
         ></div>
       </div>
 

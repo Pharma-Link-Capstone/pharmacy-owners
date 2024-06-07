@@ -10,8 +10,13 @@ import {
 } from "@headlessui/vue";
 
 import { appNavigation } from "~/helper/data/navigation";
+import { useAuthStore } from "~/stores/auth";
 
 const router = useRouter();
+
+const { user, $reset } = useAuthStore();
+
+const { onLogout } = useApollo();
 
 const currentPath = computed(() => router.currentRoute.value.path);
 
@@ -27,8 +32,63 @@ const changeColorPreference = (preference) => {
   useColorMode().value = preference;
   useColorMode().preference = preference;
 };
+
+const openConfirmationModal = ref(false);
+
+const handleLogout = () => {
+  onLogout("authenticated");
+  $reset();
+  localStorage.removeItem("PhID");
+  router.push("/login");
+};
+
+const entryOption = ref([
+  {
+    text: "Inventory",
+    value: "inventory",
+  },
+  {
+    text: "Sales",
+    value: "sales",
+  },
+]);
+
+const entry = ref(entryOption.value[0]);
+
+const { handleSubmit } = useForm({});
+
+const searchTerm = ref("");
+const handleSearch = handleSubmit((values) => {
+  if (entry.value.value === "inventory") {
+    router.push("/app/inventory?q=" + searchTerm.value);
+  } else if (entry.value.value === "sales") {
+    router.push("/app/sales?q=" + searchTerm.value);
+  }
+});
+
+const openNotification = ref(false);
 </script>
 <template>
+  <!-- ---------------Notification--------------- -->
+
+  <!-- <CommonNotification
+    v-if="openNotification"
+    v-model="openNotification"
+  ></CommonNotification> -->
+
+  <Modals-confirmation
+    v-model="openConfirmationModal"
+    :assurance-text="'Are you sure you want to logout?'"
+    description="You will be logged out of the system. Do you want to continue?"
+    icon="ri:logout-circle-r-line"
+    icon-class="rotate-90 text-haze-600"
+    title="Logout"
+    actions-class="!justify-between"
+    iconWrapperClass="mx-auto flex h-12 w-12 flex-shrink-0 items-center text-red-600 justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+    confirm-button-class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+    @confirm="handleLogout"
+  ></Modals-confirmation>
+
   <div class="flex items-center justify-between w-full h-full px-5">
     <div class="flex items-center text-sm font-medium text-gray-400 gap-x-2">
       <button class="cursor-pointer">
@@ -38,21 +98,60 @@ const changeColorPreference = (preference) => {
       <button class="cursor-pointer">{{ currentNav.name }}</button>
     </div>
     <div class="py-2.5 px-8 rounded-full flex items-center gap-x-4">
-      <div class="relative">
+      <form @submit.prevent="handleSearch" class="relative">
         <input
           type="text"
-          class="rounded-3xl py-2.5 pl-14 bg-primary-50 dark:bg-primary-dark-800 border-none focus:border-transparent outline-none dark:text-gray-100 text-gray-950 w-72"
+          class="rounded-3xl py-2.5 pl-14 bg-primary-50 dark:bg-primary-dark-800 border-none focus:border-transparent outline-none dark:text-gray-100 text-gray-950 w-full"
           placeholder="Search"
+          name="searchTop"
+          v-model="searchTerm"
         />
-        <Icon
-          class="absolute text-2xl -translate-y-1/2 text-gray-950 dark:text-gray-100 left-4 top-1/2"
-          name="iconamoon:search"
-        />
-      </div>
+        <button
+          class="absolute -translate-y-1/2 cursor-pointer text-gray-950 dark:text-gray-100 left-4 top-1/2"
+        >
+          <Icon
+            class="text-2xl"
+            name="iconamoon:search"
+            @click="handleSearch"
+          />
+        </button>
+        <div class="absolute z-50 right-1.5 -translate-y-1/2 top-1/2">
+          <Menu as="div" class="relative">
+            <MenuButton
+              class="flex items-center px-5 py-1.5 cursor-pointer gap-x-3 text-gray-950 dark:text-gray-100 bg-primary-100 dark:bg-primary-dark-900 rounded-3xl"
+            >
+              {{ entry.text }}
+              <Icon class="text-2xl" name="iconamoon:arrow-down-2-light"
+            /></MenuButton>
+            <MenuItems
+              class="absolute z-30 flex flex-col w-full mt-1 overflow-hidden bg-white shadow dark:bg-primary-dark-900 dark:text-white rounded-xl"
+            >
+              <MenuItem
+                v-for="(entryP, index) in entryOption"
+                :key="index"
+                class="hover:bg-gray-50 dark:hover:bg-primary-dark-700 py-1.5 px-3"
+                @click="(_) => (entry = entryP)"
+              >
+                <button type="button" class="w-full text-left">
+                  {{ entryP.text }}
+                </button>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        </div>
+      </form>
       <div
         class="relative flex items-center gap-x-3 text-gray-950 dark:text-gray-400"
       >
-        <Icon name="humbleicons:bell" class="text-2xl cursor-pointer" />
+        <button class="relative z-50" @click="openNotification = true">
+          <Icon name="humbleicons:bell" class="text-2xl cursor-pointer" />
+          <!-- <span
+          v-show="unSeedLength > 0"
+          class="absolute z-50 text-sm font-medium text-red-600 rounded-full left-4 bottom-2 -right-1"
+          >{{ unSeedLength }}</span
+        > -->
+        </button>
+
         <Popover class="relative">
           <PopoverButton
             class="!border-none focus:border-none focus:outline-none w-full"
@@ -114,21 +213,21 @@ const changeColorPreference = (preference) => {
             class="flex items-center pr-5 cursor-pointer gap-x-3 text-gray-950 dark:text-gray-100 bg-primary-50 dark:bg-primary-dark-800 rounded-3xl"
           >
             <img
-              src="/images/temp/profile.jpg"
+              :src="user?.media?.url"
               class="object-cover w-12 h-12 rounded-full"
               alt="" />
             <p class="hidden text-lg whitespace-nowrap lg:block">
-              Grace Pharmacy
+              {{ user?.first_name }} {{ user?.last_name }}
             </p>
             <Icon class="text-2xl" name="iconamoon:arrow-down-2-light"
           /></MenuButton>
           <MenuItems
-            class="absolute flex flex-col w-full px-5 py-3 mt-2 bg-white rounded-3xl"
+            class="absolute z-20 flex flex-col w-full px-5 py-3 mt-2 bg-white rounded-3xl dark:bg-primary-dark-900 dark:text-white"
           >
             <MenuItem v-slot="{ active }">
               <nuxt-link
-                :class="{ 'bg-primary-50': active }"
-                to="/settings"
+                :class="{ 'bg-primary-50 dark:bg-primary-dark-700': active }"
+                to="/app/settings"
                 class="px-3 py-2 text-left rounded-3xl"
               >
                 <Icon name="ic:round-settings" class="mr-2 text-xl" />
@@ -137,8 +236,9 @@ const changeColorPreference = (preference) => {
             </MenuItem>
             <MenuItem v-slot="{ active }">
               <button
-                :class="{ 'bg-primary-50': active }"
+                :class="{ 'bg-primary-50 dark:bg-primary-dark-700': active }"
                 class="px-3 py-2 text-left rounded-3xl"
+                @click="openConfirmationModal = true"
               >
                 <Icon name="ic:round-logout" class="mr-2 text-xl" />
                 Logout

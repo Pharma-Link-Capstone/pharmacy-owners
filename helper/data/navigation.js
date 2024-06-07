@@ -6,16 +6,22 @@ export const appNavigation = [
     path: "/app",
   },
   {
-    name: "Inventory",
-    header: "Inventory Management",
+    name: "Pharmacy",
+    header: "Pharmacy",
+    icon: "material-symbols:local-pharmacy-outline",
+    path: "/app/pharmacy-profile",
+  },
+  {
+    name: "Medicines",
+    header: "Medicines",
     icon: "lucide:shopping-cart",
     path: "/app/inventory",
   },
   {
-    name: "Reviews",
-    header: "Pharmacy Reviews",
-    icon: "lucide:star",
-    path: "/app/reviews",
+    name: "Sales",
+    header: "Sales Management",
+    icon: "streamline:subscription-cashflow-solid",
+    path: "/app/sales",
   },
   {
     name: "Settings",

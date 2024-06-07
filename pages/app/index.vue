@@ -1,32 +1,55 @@
 <script setup>
+import FetchPharmacies from "@/graphql/pharmacy/fetch_multiple_query.gql";
+import lists from "~/composables/apollo/lists";
+import { useAuthStore } from "~/stores/auth";
+
 definePageMeta({
   layout: "app",
 });
 
-const analytics = ref([
+const PhID = computed(() => localStorage.getItem("PhID"));
+
+/*--- Fetch Pharmacies ---*/
+const pharmacy = ref({});
+const pharmacyFilter = computed(() => {
+  return {
+    id: {
+      _eq: PhID.value,
+    },
+  };
+});
+
+const { onResult: onFetchPharmaciesResult, loading: fetchPharmaciesLoading } =
+  lists(FetchPharmacies, { filter: pharmacyFilter });
+
+onFetchPharmaciesResult(({ data }) => {
+  pharmacy.value = data?.pharmacies[0];
+});
+
+const analytics = computed(() => [
   {
     title: "Medicine",
-    value: 282,
+    value: pharmacy.value?.medicines_count?.aggregate?.count || 0,
     icon: "healthicons:medicines-outline",
   },
   {
     title: "Reviews",
-    value: 300,
+    value: pharmacy.value?.summary?.total_reviews || 0,
     icon: "material-symbols:reviews",
   },
   {
     title: "Impression",
-    value: 182,
+    value: 0,
     icon: "wpf:view-file",
   },
   {
     title: "Viewed",
-    value: 34,
+    value: pharmacy.value?.summary?.view_count || 0,
     icon: "iconoir:eye",
   },
   {
     title: "Interactions",
-    value: 12,
+    value: 0,
     icon: "carbon:touch-interaction",
   },
 ]);
@@ -82,16 +105,33 @@ const topSearchedPlaceItems = ref([
     date: "2021-09-01",
   },
 ]);
+
+const ratingValue = computed(() => {
+  let val = 0;
+
+  pharmacy.value?.reviews?.forEach((review) => {
+    val += review.rating;
+  });
+
+  return val / pharmacy.value?.reviews.length;
+});
 </script>
 <template>
   <div class="w-full">
     <!-- Analytic Cards -->
-    <div class="grid grid-cols-5 gap-12">
+    <div class="grid grid-cols-5 gap-12" v-if="!fetchPharmaciesLoading">
       <Dashboard-Card-Analytic
         v-for="(analytic, index) in analytics"
         :key="index"
         :analytic="analytic"
       />
+    </div>
+
+    <!-- Skeleton -->
+    <div v-else class="grid h-32 grid-cols-5 gap-12">
+      <div v-for="i in 5" :key="i" class="w-full h-full">
+        <SkeletonLoadingAnalytic />
+      </div>
     </div>
 
     <!--  -->
@@ -174,16 +214,27 @@ const topSearchedPlaceItems = ref([
         class="box-content flex flex-col items-center col-span-2 gap-3 px-2 py-5 bg-white dark:bg-primary-dark-900 rounded-3xl"
       >
         <img
-          src="/images/temp/pharmacy.jpg"
+          :src="pharmacy?.logo_url || '/images/temp/pharmacy.jpg'"
           alt="pharmacy"
           class="object-cover w-32 h-32 rounded-3xl"
         />
         <h2 class="text-xl font-bold text-gray-950 dark:text-gray-100">
-          Grace Pharmacy
+          {{ pharmacy?.name }}
         </h2>
         <p class="text-sm text-gray-400 dark:text-gray-200">
-          <Icon name="lucide:map-pin" /> Koye, Addis Ababa
+          <Icon name="lucide:map-pin" /> {{ pharmacy?.location?.area?.name }},
+          {{ pharmacy?.location?.area?.city?.name }},
         </p>
+        <p class="text-sm text-gray-400 dark:text-gray-200">
+          {{ pharmacy?.location?.area?.city?.region?.name }}
+        </p>
+        <div>
+          <NuxtRating
+            :read-only="true"
+            :ratingValue="ratingValue"
+            class="flex justify-center bg-black"
+          />
+        </div>
       </div>
     </div>
 
@@ -193,16 +244,24 @@ const topSearchedPlaceItems = ref([
         <P-Table
           :headers="topSearchedPlaceHeader"
           :items="topSearchedPlaceItems"
-          supporter-class="overflow-hidden bg-white dark:bg-primary-dark-900 rounded-3xl"
+          :loading="false"
+          supporter-class="overflow-hidden bg-white dark:!bg-primary-dark-900 rounded-3xl border-0"
+          row-head-style="text-gray-500 dark:text-gray-200 bg-gray-50 dark:bg-primary-dark-800"
+          row-style="text-gray-500 dark:text-gray-200 rounded-none"
+          fullRowClass="hover:bg-gray-50 dark:hover:bg-primary-dark-800 cursor-pointer"
         />
       </div>
-      <div>
+      <!-- <div>
         <P-Table
           :headers="topSearchedPlaceHeader"
           :items="topSearchedPlaceItems"
-          supporter-class="overflow-hidden bg-white dark:bg-primary-dark-900 rounded-3xl"
+          :loading="false"
+          supporter-class="overflow-hidden bg-white border-0 dark:bg-primary-dark-900 rounded-3xl"
+          row-head-style="text-gray-500 dark:text-gray-200 bg-gray-50 dark:bg-primary-dark-800"
+          row-style="text-gray-500 dark:text-gray-200 rounded-none"
+          fullRowClass="hover:bg-gray-50 dark:hover:bg-primary-dark-800 cursor-pointer"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

@@ -1,0 +1,16 @@
+query GetCities(
+  $filter: basic_cities_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [basic_cities_order_by!] = [{ name: asc }]
+) {
+  cities: basic_cities(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
+    name
+    id
+  }
+}

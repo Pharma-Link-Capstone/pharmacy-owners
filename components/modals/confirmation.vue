@@ -6,6 +6,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
+import { sub } from "date-fns";
 
 const emits = defineEmits(["update:modelValue", "confirm"]);
 const props = defineProps({
@@ -38,6 +39,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  assuranceText: {
+    type: String,
+    default: "",
+  },
   confirmButton: {
     type: String,
     default: "Confirm",
@@ -46,6 +51,10 @@ const props = defineProps({
     type: String,
     default:
       "inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto",
+  },
+  actionsClass: {
+    type: String,
+    default: "mt-5 sm:mt-4 sm:flex sm:flex-row-reverse",
   },
 });
 
@@ -76,13 +85,13 @@ const open = computed({
           leave-to="opacity-0"
         >
           <div
-            class="fixed inset-0 bg-gray-500 bg-opacity-20 transition-opacity"
+            class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-20"
           />
         </TransitionChild>
 
         <div class="fixed inset-0 z-10 overflow-y-auto">
           <div
-            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+            class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0"
           >
             <TransitionChild
               as="template"
@@ -94,12 +103,12 @@ const open = computed({
               leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6"
+                class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6"
               >
-                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+                <div class="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
                   <button
                     type="button"
-                    class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-offset-1"
+                    class="text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-offset-1"
                     @click="open = false"
                   >
                     <span class="sr-only">Close</span>
@@ -107,7 +116,7 @@ const open = computed({
                       name="ion:close-outline"
                       width="25"
                       height="25"
-                      class="h-6 w-6"
+                      class="w-6 h-6"
                     />
                   </button>
                 </div>
@@ -127,6 +136,11 @@ const open = computed({
                       class="text-base font-semibold leading-6 text-gray-900"
                       >{{ title }}</DialogTitle
                     >
+                    <div class="mt-2" v-if="assuranceText">
+                      <p class="text-sm text-gray-500">
+                        {{ assuranceText }}
+                      </p>
+                    </div>
                     <div class="mt-2">
                       <p class="text-sm text-gray-500">
                         {{ description }}
@@ -134,7 +148,10 @@ const open = computed({
                     </div>
                   </div>
                 </div>
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <div
+                  class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse"
+                  :class="actionsClass"
+                >
                   <button
                     type="button"
                     :class="confirmButtonClass"
@@ -144,7 +161,7 @@ const open = computed({
                   </button>
                   <button
                     type="button"
-                    class="mt-3 inline-flex w-full justify-center hover:shadow-lg rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                    class="inline-flex justify-center w-full px-3 py-2 mt-3 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm hover:shadow-lg ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                     @click="open = false"
                   >
                     Cancel

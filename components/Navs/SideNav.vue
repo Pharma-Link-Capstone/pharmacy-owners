@@ -1,11 +1,37 @@
 <script setup>
 import { appNavigation } from "@/helper/data/navigation";
+import { useAuthStore } from "~/stores/auth";
 
 const router = useRouter();
 
+const { $reset } = useAuthStore();
+
+const { onLogout } = useApollo();
+
 const currentPath = computed(() => router.currentRoute.value.path);
+
+const openConfirmationModal = ref(false);
+
+const handleLogout = () => {
+  onLogout("authenticated");
+  $reset();
+  localStorage.removeItem("PhID");
+  router.push("/login");
+};
 </script>
 <template>
+  <Modals-confirmation
+    v-model="openConfirmationModal"
+    :assurance-text="'Are you sure you want to logout?'"
+    description="You will be logged out of the system. Do you want to continue?"
+    icon="ri:logout-circle-r-line"
+    icon-class="rotate-90 text-haze-600"
+    title="Logout"
+    actions-class="!justify-between"
+    iconWrapperClass="mx-auto flex h-12 w-12 flex-shrink-0 items-center text-red-600 justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+    confirm-button-class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+    @confirm="handleLogout"
+  ></Modals-confirmation>
   <div class="flex flex-col justify-between w-full h-full px-10 py-5">
     <div>
       <div>
@@ -17,7 +43,7 @@ const currentPath = computed(() => router.currentRoute.value.path);
         <nuxt-link
           v-for="(nav, index) in appNavigation"
           :key="index"
-          class="flex items-center justify-center w-full gap-5 px-5 py-2 text-xl transition-all ease-in-out rounded-md text-gray-950 dark:text-primary-dark-600 hover:bg-primary-600 hover:dark:bg-primary-600 hover:dark:text-white hover:text-white"
+          class="flex items-center w-full gap-5 px-5 py-2 text-xl transition-all ease-in-out rounded-md text-gray-950 dark:text-white hover:bg-primary-600 hover:dark:bg-primary-600 hover:text-white"
           :class="[
             currentPath.includes(nav.path) && nav.name != 'Dashboard'
               ? 'bg-primary-600 text-white dark:!text-white'
@@ -32,18 +58,9 @@ const currentPath = computed(() => router.currentRoute.value.path);
       </nav>
     </div>
     <div class="mb-16">
-      <div
-        class="flex flex-col items-center gap-8 p-5 text-white rounded-3xl bg-gradient-to-tl from-secondary-600 to-secondary-200"
-      >
-        <h2 class="text-sm font-medium">Update account</h2>
-        <button
-          class="w-full py-3 text-lg bg-white shadow px-7 rounded-3xl text-secondary-600"
-        >
-          Upgrade Now!
-        </button>
-      </div>
       <button
-        class="flex items-center justify-center w-full gap-3 mt-8 text-xl"
+        class="flex items-center justify-start w-full gap-3 px-5 mt-8 text-xl"
+        @click="openConfirmationModal = true"
       >
         <Icon name="mdi:logout" class="text-xl" />
         <p>Logout</p>

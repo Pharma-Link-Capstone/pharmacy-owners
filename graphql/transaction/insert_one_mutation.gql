@@ -1,0 +1,11 @@
+mutation CreateTransaction(
+  $transactionObject: transactions_insert_input!
+  $pharmacyMedicineObject: [pharmacy_medicines_updates!]!
+) {
+  insert_transactions_one(object: $transactionObject) {
+    id
+  }
+  update_pharmacy_medicines_many(updates: $pharmacyMedicineObject) {
+    affected_rows
+  }
+}
