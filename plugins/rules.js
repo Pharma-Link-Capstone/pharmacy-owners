@@ -110,4 +110,29 @@ export default defineNuxtPlugin((vueApp) => {
         !value || /^(http|https):\/\/[^ "]+$/.test(value) || "Not valid URL"
       );
     });
+  defineRule("minDate", (value, [minDate]) => {
+    return !value || new Date(value) >= new Date(minDate) || "Date is too old";
+  });
+  defineRule("maxDate", (value, [maxDate]) => {
+    return (
+      !value ||
+      new Date(value) <= new Date(maxDate) ||
+      "Date is too far in the future"
+    );
+  });
+  defineRule("min", (value, [min]) => {
+    return !value || value >= min || `Must be greater than ${min}`;
+  });
+  defineRule("max", (value, [max]) => {
+    return !value || value <= max || `Must be lower than ${max}`;
+  });
+  defineRule("unsigned", (value) => {
+    return !value || value >= 0 || "Must be a positive number";
+  });
+  defineRule("positive", (value) => {
+    return !value || value > 0 || "Must be a positive number";
+  });
+  defineRule("integer", (value) => {
+    return !value || Number.isInteger(Number(value)) || "Must be an integer";
+  });
 });

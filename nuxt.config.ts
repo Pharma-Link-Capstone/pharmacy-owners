@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/apollo",
     "nuxt3-leaflet",
+    "nuxt-rating",
   ],
   veeValidate: {
     // disable or enable auto imports

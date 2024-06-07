@@ -27,13 +27,14 @@ const {
   mutate: login,
   loading: loginLoading,
   onDone: onLoginDone,
+  onError: onLoginError,
 } = mutator_anonymous(LoginMutation);
 
 const { handleSubmit } = useForm({});
 const handleLogin = (values) => {
   login({
     credential: {
-      email: email.value,
+      email_or_phone_number: email.value,
       password: password.value,
     },
   });
@@ -49,8 +50,21 @@ onLoginDone(async ({ data }) => {
       description: "You have successfully logged in",
       cardClass: "bg-green-100",
     });
-    router.replace("/app");
+
+    router.replace("/loading");
   } catch (error) {
+    notify({
+      title: "Login Failed",
+      description: "Invalid email or password",
+      cardClass: "bg-red-100",
+    });
+  }
+});
+
+onLoginError((error) => {
+  if (error.message.includes("Unverified")) {
+    router.push("/signup/verify");
+  } else {
     notify({
       title: "Login Failed",
       description: "Invalid email or password",
@@ -62,76 +76,71 @@ onLoginDone(async ({ data }) => {
 <template>
   <div>
     <div class="flex flex-col h-full">
-      <div>
-        <h1 class="text-4xl font-bold red-hat-display">Pharma Link</h1>
-      </div>
       <div class="grid items-center flex-grow grid-cols-2 gap-20 mt-10">
         <div class="">
-          <form @submit.prevent="handleLogin">
-            <h1 class="text-4xl poppins-bold">Login</h1>
-            <p class="mt-4 text-sm poppins-light">
-              Login to access your PharmaLink account
-            </p>
-
-            <div class="mt-6">
-              <P-Textfield
-                placeholder="Email"
-                field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
-                name="email"
-                rules="required|email"
-                v-model="email"
-              >
-                <template #leading>
-                  <Icon
-                    class="absolute w-5 h-5 text-xl text-gray-400 -translate-y-1/2 top-1/2 left-4"
-                    name="lucide:mail"
-                  ></Icon>
-                </template>
-              </P-Textfield>
-            </div>
-
-            <div class="mt-6">
-              <P-Textfield
-                placeholder="Password"
-                type="password"
-                field-class="!py-5 pl-12 bg-gray-50 rounded-2xl"
-                name="password"
-                rules="required|password"
-                v-model="password"
-              >
-                <template #leading>
-                  <Icon
-                    class="absolute w-5 h-5 text-xl text-gray-400 -translate-y-1/2 top-1/2 left-4"
-                    name="material-symbols:password"
-                  ></Icon>
-                </template>
-              </P-Textfield>
-            </div>
-
-            <div class="flex items-center justify-between mt-6">
-              <div>
-                <input
-                  type="checkbox"
-                  name="remember"
-                  id="remember"
-                  class="rounded"
-                  v-model="remember"
-                />
-                <label for="remember" class="ml-2">Remember me</label>
+          <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
+            <div>
+              <div class="flex items-center">
+                <img src="/images/pharmalink-logo.png" alt="" />
+                <!-- <h1 class="text-4xl font-bold red-hat-display">Pharma Link</h1> -->
               </div>
-              <nuxt-link to="/reset-password" class="text-[#FF8682]"
-                >Forgot Password</nuxt-link
-              >
+              <h1 class="mt-10 text-4xl poppins-bold">Login</h1>
+              <p class="mt-4 text-sm poppins-light">
+                Login to access your PharmaLink account
+              </p>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div>
+                <P-Textfield
+                  placeholder="Email"
+                  field-class="!py-5 pl-12 max-h-14 bg-gray-50 rounded-2xl"
+                  name="email"
+                  rules="required|email"
+                  v-model="email"
+                >
+                  <template #leading>
+                    <Icon
+                      class="absolute w-5 h-5 text-xl text-gray-400 -translate-y-1/2 top-1/2 left-4"
+                      name="lucide:mail"
+                    ></Icon>
+                  </template>
+                </P-Textfield>
+              </div>
+
+              <div>
+                <P-Textfield
+                  placeholder="Password"
+                  type="password"
+                  field-class="!py-5 pl-12 max-h-12 bg-gray-50 rounded-2xl"
+                  name="password"
+                  rules="required|password"
+                  v-model="password"
+                >
+                  <template #leading>
+                    <Icon
+                      class="absolute w-5 h-5 text-xl text-gray-400 -translate-y-1/2 top-1/2 left-4"
+                      name="material-symbols:password"
+                    ></Icon>
+                  </template>
+                </P-Textfield>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div></div>
+                <nuxt-link to="/reset-password" class="text-[#FF8682]"
+                  >Forgot Password</nuxt-link
+                >
+              </div>
             </div>
 
-            <div class="mt-10">
+            <div>
               <button
                 class="flex items-center justify-center w-full gap-2 py-3 text-white rounded bg-primary-600"
               >
                 Login
                 <Icon
                   v-if="loginLoading"
-                  name="eva:loader-2"
+                  name="mingcute:loading-3-fill"
                   class="text-xl animate-spin"
                 ></Icon>
               </button>
@@ -147,7 +156,7 @@ onLoginDone(async ({ data }) => {
             </div>
           </form>
 
-          <div class="mt-10">
+          <!-- <div class="mt-10">
             <p class="text-center">Or login with</p>
             <div class="grid grid-cols-2 mt-10">
               <button
@@ -161,7 +170,7 @@ onLoginDone(async ({ data }) => {
                 <Icon name="logos:facebook" class="text-3xl"></Icon>
               </button>
             </div>
-          </div>
+          </div> -->
         </div>
         <div
           class="relative bg-[#d9d9d9] bg-opacity-70 rounded-3xl flex items-center flex-col aspect-[15/16] justify-center"
@@ -171,10 +180,6 @@ onLoginDone(async ({ data }) => {
             alt=""
             class="w-full h-full"
           />
-          <div class="flex gap-1 py-3">
-            <div class="w-5 h-2 rounded cursor-pointer bg-primary-600"></div>
-            <div class="w-3 h-2 bg-gray-400 rounded cursor-pointer"></div>
-          </div>
         </div>
       </div>
     </div>

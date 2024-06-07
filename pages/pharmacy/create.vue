@@ -1,10 +1,70 @@
 <script setup>
+import FetchPharmacy from "@/graphql/pharmacy/fetch_one_query.gql";
+import get_one from "~/composables/apollo/get_one";
+
 import InsertPlace from "@/graphql/pharmacy/insert-one-mutation.gql";
+import DeleteRelationship from "@/graphql/pharmacy/delete_relations.gql";
 import mutator from "~/composables/apollo/mutator";
+import useNotify from "~/use/notify";
+import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   layout: "default",
 });
+
+const route = useRoute();
+const router = useRouter();
+
+const { userRoles } = useAuthStore();
+
+const PhID = computed(() => localStorage.getItem("PhID"));
+
+const role = computed(() => {
+  if (userRoles.includes("pharmacist")) {
+    return "pharmacist";
+  }
+  return "user";
+});
+
+const enabled = computed(() => PhID.value != null);
+
+const pharmacy = ref({
+  logo_url: [],
+});
+
+const {
+  onResult: onFetchPharmacyResult,
+  loading: fetchPharmacyLoading,
+  refetch: refetchPharmacy,
+} = get_one(FetchPharmacy, PhID.value, role, enabled);
+
+onFetchPharmacyResult(({ data }) => {
+  pharmacy.value = {
+    ...data?.pharmacy,
+    logo_url: data?.pharmacy?.logo_url ? [data?.pharmacy?.logo_url] : [],
+    license_url: data?.pharmacy?.license_url
+      ? [data?.pharmacy?.license_url]
+      : [],
+    area: data?.pharmacy?.location?.area?.id,
+    location: {
+      position: {
+        lat: data?.pharmacy?.location?.location?.coordinates[1],
+        lng: data?.pharmacy?.location?.location?.coordinates[0],
+      },
+    },
+    description: data?.pharmacy?.description,
+    region: data?.pharmacy?.location?.area?.city?.region?.id,
+    city: data?.pharmacy?.location?.area?.city?.id,
+    socials: data?.pharmacy?.pharmacy_social_medias?.map((social) => ({
+      id: social?.social_media?.id,
+      url: social?.url,
+      name: social?.social_media?.name,
+      icon_url: social?.social_media?.icon_url,
+    })),
+  };
+});
+
+const { notify } = useNotify();
 
 const steps = ref([
   "Basic Pharmacy Information",
@@ -12,50 +72,113 @@ const steps = ref([
   "License",
 ]);
 
-const pharmacy = ref({
-  logo_url: [],
+if (!route.query.step) {
+  router.replace({
+    query: {
+      step: steps.value[0],
+    },
+  });
+}
+
+const currentStepIndex = computed(() => {
+  return steps.value.findIndex((step) => step === currentStep.value);
 });
 
-const currentStepIndex = ref(0);
+const currentStep = computed(() => route.query.step);
 
 const next = () => {
   if (currentStepIndex.value === steps.value.length - 1) {
     alert("Finish");
     return;
   }
-  currentStepIndex.value += 1;
+  router.replace({
+    query: {
+      step: steps.value[currentStepIndex.value + 1],
+    },
+  });
 };
 
 /*---------------- Form Submission ----------------*/
 const {
+  mutate: deleteRelationsMutation,
+  loading: deleteRelationsLoading,
+  onDone: onDeleteRelationsDone,
+} = mutator(DeleteRelationship, "pharmacist");
+
+const {
   mutate: insertPlaceMutation,
   loading: insertPlaceLoading,
-  onDone: onInsertPlaceDOne,
+  onDone: onInsertPlaceDone,
 } = mutator(InsertPlace);
 
-const onSubmit = () => {
+const onInsertPharmacy = () => {
   insertPlaceMutation({
     object: {
-      name: pharmacy.value.name,
-      description: pharmacy.value.description,
-      logo_url: pharmacy.value.logo_url[0],
-      location: pharmacy.value.location,
-      socials: pharmacy.value.socials,
-      license: pharmacy.value.license[0],
+      is_open: true,
+      license_url: pharmacy.value?.license_url[0],
+      location: {
+        data: {
+          area_id: pharmacy.value?.area,
+          location: {
+            type: "Point",
+            coordinates: [
+              pharmacy.value?.location?.position?.lng,
+              pharmacy.value?.location?.position?.lat,
+            ],
+          },
+        },
+      },
+      logo_url: pharmacy.value?.logo_url[0],
+      name: pharmacy.value?.name,
+      description: pharmacy.value?.description,
+      phone_number_1: pharmacy.value?.phoneNumber,
+      phone_number_2: pharmacy.value?.alternativePhoneNumber,
+      pharmacy_social_medias: {
+        data: pharmacy.value?.socials?.map((social) => ({
+          social_media_id: social?.id,
+          url: social?.url,
+        })),
+      },
     },
   });
 };
+
+const onSubmit = () => {
+  if (PhID.value) {
+    deleteRelationsMutation({
+      id: PhID.value,
+    });
+  } else onInsertPharmacy();
+};
+
+onDeleteRelationsDone(() => {
+  onInsertPharmacy();
+});
+
+onInsertPlaceDone(({ data }) => {
+  router.push("/app");
+  if (PhID.value) {
+    notify({
+      title: "Pharmacy Created",
+      description: "Pharmacy has been created successfully",
+      cardClass: "bg-green-100",
+    });
+  } else {
+    notify({
+      title: "Pharmacy Updated",
+      description: "Pharmacy has been updated successfully",
+      cardClass: "bg-green-100",
+    });
+  }
+});
 </script>
 <template>
-  <div class="w-full h-full">
-    <div
-      class="w-full max-w-[950px] mx-auto mt-20 shadow border rounded-2xl py-5"
-    >
+  <div class="flex items-center justify-center w-full h-full">
+    <div class="w-full max-w-[950px] mt-20 shadow border rounded-2xl py-5">
       <div class="flex flex-col items-center gap-3">
         <img src="/images/pharmalink-logo.png" alt="" />
         <h1 class="text-3xl">Set Up Profile</h1>
       </div>
-
       <div class="px-5 mt-10">
         <!-- Stepper -->
         <div class="grid grid-cols-3 gap-10">
@@ -101,13 +224,23 @@ const onSubmit = () => {
           <Pharmacy-Form-ContactInfo
             v-if="currentStepIndex == 1"
             @next="next"
-            @prev="() => (currentStepIndex -= 1)"
+            @prev="
+              () =>
+                $router.replace({
+                  query: { step: steps[currentStepIndex - 1] },
+                })
+            "
             v-model="pharmacy"
           />
           <Pharmacy-Form-License
             v-if="currentStepIndex == 2"
-            @finish="next"
-            @prev="() => (currentStepIndex -= 1)"
+            @finish="onSubmit"
+            @prev="
+              () =>
+                $router.replace({
+                  query: { step: steps[currentStepIndex - 1] },
+                })
+            "
             v-model="pharmacy"
           />
         </div>

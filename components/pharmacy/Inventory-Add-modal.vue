@@ -1,4 +1,10 @@
 <script setup>
+import FetchMedicines from "@/graphql/medicine/fetch_multiple_query.gql";
+import InsertMultipleMedicines from "@/graphql/medicine/insert_multiple_mutation.gql";
+import lists from "~/composables/apollo/lists";
+import mutator from "~/composables/apollo/mutator";
+import useNotify from "~/use/notify";
+
 definePageMeta({
   layout: "app",
 });
@@ -10,7 +16,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "success"]);
+
+const { notify } = useNotify();
+
+const PhID = computed(() => localStorage.getItem("PhID"));
 
 const openModal = computed({
   get: () => props.modelValue,
@@ -19,118 +29,27 @@ const openModal = computed({
   },
 });
 
-const items = ref([
-  {
-    id: 1,
-    name: "Paracetamol",
-    generic_name: "Paracetamol",
-    category: "Tablet",
-    price: 10,
-    quantity: 100,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Amoxicillin",
-    generic_name: "Amoxicillin",
-    category: "Capsule",
-    price: 20,
-    quantity: 200,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Ibuprofen",
-    generic_name: "Ibuprofen",
-    category: "Tablet",
-    price: 15,
-    quantity: 150,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Ciprofloxacin",
-    generic_name: "Ciprofloxacin",
-    category: "Capsule",
-    price: 25,
-    quantity: 250,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Doxycycline",
-    generic_name: "Doxycycline",
-    category: "Tablet",
-    price: 30,
-    quantity: 300,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Metronidazole",
-    generic_name: "Metronidazole",
-    category: "Capsule",
-    price: 35,
-    quantity: 350,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Azithromycin",
-    generic_name: "Azithromycin",
-    category: "Tablet",
-    price: 40,
-    quantity: 400,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Ceftriaxone",
-    generic_name: "Ceftriaxone",
-    category: "Capsule",
-    price: 45,
-    quantity: 450,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Cefixime",
-    generic_name: "Cefixime",
-    category: "Tablet",
-    price: 50,
-    quantity: 500,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-  {
-    id: 1,
-    name: "Clarithromycin",
-    generic_name: "Clarithromycin",
-    category: "Capsule",
-    price: 55,
-    quantity: 550,
-    expiry_date: "2022-09-01",
-    image:
-      "https://img.freepik.com/free-photo/packings-pills-capsules-medicines_1339-2254.jpg?t=st=1715952463~exp=1715956063~hmac=db8fe1c8d119c6652229ab2ba999974dedc816257cef381dec10ccbe04aac388&w=900",
-  },
-]);
+/*----------------------Fetch Medicines----------------------*/
+const medicineOptions = ref([]);
+const medicineSearchTerm = ref("");
+const medicineFiler = computed(() => {
+  return {
+    name: {
+      _ilike: `%${medicineSearchTerm.value}%`,
+    },
+  };
+});
+
+const { onResult: onFetchMedicineResult, loading: fetchMedicineLoading } =
+  lists(FetchMedicines, {
+    filter: medicineFiler,
+    limit: ref(10),
+    order: ref([{ name: "asc" }]),
+  });
+
+onFetchMedicineResult(({ data }) => {
+  medicineOptions.value = data?.medicines;
+});
 
 /*----------------------Handle Form Add----------------------*/
 const addedMedicines = ref([]);
@@ -149,19 +68,77 @@ const medicine = ref(null);
 
 const { handleSubmit, resetForm } = useForm({});
 const handleInventoryAdd = handleSubmit(() => {
-  addedMedicines.value.push({
-    medicine: medicine.value,
-    quantity: quantity.value,
-    unitPrice: unitPrice.value,
-    expiryDate: expiryDate.value,
-  });
+  addedMedicines.value = [
+    ...addedMedicines.value,
+    {
+      medicine: medicine.value,
+      quantity: quantity.value,
+      unitPrice: unitPrice.value,
+      expiryDate: expiryDate.value,
+    },
+  ];
 
   resetForm();
+
+  medicine.value = null;
 });
+
+/*----------------------Handle Submission----------------------*/
+const {
+  mutate: insertMedicines,
+  loading: insertMedicinesLoading,
+  onDone: onInsertMedicinesDone,
+} = mutator(InsertMultipleMedicines, "pharmacist");
+
+const onSubmit = () => {
+  const data = addedMedicines.value.map((item) => {
+    return {
+      pharmacy_id: PhID.value,
+      medicine_id: item?.medicine?.id,
+      expire_at: item.expiryDate,
+      price: item.unitPrice,
+      quantity: item.quantity,
+    };
+  });
+
+  insertMedicines({
+    objects: data,
+  });
+};
+
+onInsertMedicinesDone(() => {
+  openModal.value = false;
+  addedMedicines.value = [];
+  notify({
+    title: "Success",
+    description: "Medicines added successfully",
+    cardClass: "bg-green-100",
+  });
+
+  emit("success");
+});
+
+const removeMedicine = (index) => {
+  addedMedicines.value.splice(index, 1);
+};
+
+const handleEditMedicine = (index) => {
+  medicine.value = filteredMedicines.value[index].medicine;
+  quantity.value = parseInt(filteredMedicines.value[index].quantity);
+  unitPrice.value = parseFloat(filteredMedicines.value[index].unitPrice);
+  expiryDate.value = filteredMedicines.value[index].expiryDate;
+
+  console.log(unitPrice.value, expiryDate.value, quantity.value);
+  removeMedicine(index);
+};
 </script>
 
 <template>
-  <P-Modal v-model="openModal" :auto-close="false" body-class="w-[1200px] p-10">
+  <P-Modal
+    v-model="openModal"
+    :auto-close="false"
+    body-class="w-[1200px] p-10 dark:!bg-primary-dark-900 dark:!text-gray-100"
+  >
     <template #header>
       <div class="flex items-center justify-between">
         <h1 class="text-3xl">Add Inventory</h1>
@@ -171,7 +148,7 @@ const handleInventoryAdd = handleSubmit(() => {
     <template #content>
       <div class="w-full h-full">
         <div
-          class="relative grid h-full grid-cols-6 gap-5 mt-5 bg-white divide-x-2"
+          class="relative grid h-full grid-cols-6 gap-5 mt-5 bg-white divide-x-2 dark:bg-primary-dark-900"
         >
           <div class="col-span-4">
             <div class="mx-auto">
@@ -183,11 +160,14 @@ const handleInventoryAdd = handleSubmit(() => {
                   <P-Lists-SingleSelectWithSearch
                     v-model="medicine"
                     placeholder="Select a medicine"
-                    :items="items"
+                    :items="medicineOptions"
                     name="medicine"
                     :return-object="true"
-                    header-class="!bg-[#F6F7F9] !py-4 !rounded-2xl !pl-5 !border-0 !shadow-none"
+                    header-class="!bg-haze-50 !py-4 !rounded-2xl !pl-5 !border-0 !shadow-none dark:!bg-primary-dark-800 dark:!text-white"
                     rules="onerequired"
+                    @search="medicineSearchTerm = $event"
+                    supporter="dark:!bg-primary-dark-900 dark:border-primary-dark-500"
+                    search-input-class="dark:!bg-primary-dark-800"
                   >
                     <template #label>
                       <label for="medicine" class="flex mb-2"
@@ -198,15 +178,24 @@ const handleInventoryAdd = handleSubmit(() => {
                     <template #row="{ item }">
                       <div class="flex items-center gap-3">
                         <img
-                          :src="item.image"
+                          :src="item?.image_url"
                           alt="medicine"
-                          class="w-10 h-10 rounded-full"
+                          class="object-cover w-10 h-10 rounded-full"
                         />
                         <div>
-                          <h1 class="text-lg">{{ item.name }}</h1>
-                          <p class="text-sm">{{ item.category }}</p>
+                          <h1 class="text-lg dark:text-gray-100">
+                            {{ item?.name }}
+                          </h1>
+                          <p class="text-sm dark:text-gray-100">
+                            {{ item?.category }}
+                          </p>
                         </div>
                       </div>
+                    </template>
+                    <template #option="{ item }">
+                      <p class="text-neutral-500 dark:text-gray-100">
+                        No items found for search query: {{ item }}
+                      </p>
                     </template>
                   </P-Lists-SingleSelectWithSearch>
                 </div>
@@ -217,9 +206,10 @@ const handleInventoryAdd = handleSubmit(() => {
                     v-model="quantity"
                     placeholder="How much medicine "
                     name="quantity"
-                    rules="required"
+                    rules="required|positive|integer"
                     type="number"
-                    field-class="!py-4 !pl-5 !rounded-2xl bg-[#F6F7F9] !border-0 !shadow-none"
+                    body-class="!shadow-none relative"
+                    field-class="!py-4 !pl-5 !rounded-2xl bg-haze-50 !border-0 !shadow-none dark:!bg-primary-dark-800 dark:!text-gray-100 dark:placeholder:!text-gray-200"
                   >
                     <template #label>
                       <label for="quantity" class="flex mb-2"
@@ -234,17 +224,25 @@ const handleInventoryAdd = handleSubmit(() => {
                 <div class="">
                   <P-Textfield
                     v-model="unitPrice"
-                    placeholder="Write a unit price of the medicine"
+                    placeholder="Unit price in ETB"
                     name="unitPrice"
-                    rules="required"
+                    rules="required|positive"
                     type="number"
-                    field-class="!py-4 !pl-5 !rounded-2xl bg-[#F6F7F9] !border-0 !shadow-none"
+                    body-class="!shadow-none relative"
+                    field-class="!py-4 !pl-14 !rounded-2xl bg-haze-50 !border-0 !shadow-none dark:!bg-primary-dark-800 dark:!text-gray-100 dark:placeholder:!text-gray-200"
                   >
                     <template #label>
                       <label for="unitPrice" class="flex mb-2"
                         >Unit Price
                         <span class="ml-1 text-red-600">*</span></label
                       >
+                    </template>
+                    <template #leading>
+                      <div
+                        class="absolute top-0 left-0 flex items-center justify-center h-full px-3 bg-haze-200 dark:!bg-primary-dark-950 dark:!text-gray-100 w-fit"
+                      >
+                        ETB
+                      </div>
                     </template>
                   </P-Textfield>
                 </div>
@@ -255,14 +253,22 @@ const handleInventoryAdd = handleSubmit(() => {
                     v-model="expiryDate"
                     placeholder="Enter the exact expiry date"
                     name="expiryDate"
-                    rules="required"
-                    field-class="!py-4 !pl-5 !rounded-2xl !bg-[#F6F7F9] !border-0 !shadow-none"
+                    class="relative"
+                    field-class="!py-4 !pl-5 !rounded-2xl !bg-haze-50 !border-0 !shadow-none dark:!bg-primary-dark-800 dark:!text-gray-100"
+                    :rules="`required|minDate:${new Date()}`"
                   >
                     <template #label>
                       <label for="expiryDate" class="flex mb-2"
                         >Expiry Date
                         <span class="ml-1 text-red-600">*</span></label
                       >
+                    </template>
+                    <template #trailing>
+                      <Icon
+                        name="lucide:calendar"
+                        color="gray"
+                        class="absolute text-2xl -translate-y-1/2 text-gray-950 right-5 top-1/2"
+                      />
                     </template>
                   </P-DatePicker>
                 </div>
@@ -296,7 +302,7 @@ const handleInventoryAdd = handleSubmit(() => {
                     <P-Textfield
                       placeholder="Search"
                       name="search"
-                      field-class="!py-3 !rounded-2xl bg-[#F6F7F9] !border-none !shadow-none focus:!ring-none focus:!outline-none !pl-10 "
+                      field-class="!py-3 !rounded-2xl bg-haze-50 !border-none !shadow-none focus:!ring-none focus:!outline-none !pl-10 dark:!bg-primary-dark-800 dark:!text-gray-100"
                       v-model="addedMedicineSearchTerm"
                     >
                       <template #trailing>
@@ -311,20 +317,23 @@ const handleInventoryAdd = handleSubmit(() => {
                 </div>
                 <div
                   v-if="filteredMedicines.length > 0"
-                  class="flex flex-col flex-grow max-h-[400px] overflow-y-auto scroll"
+                  class="flex flex-col max-h-[400px] h-full"
                 >
-                  <div class="flex flex-col flex-grow w-full h-full gap-5">
+                  <div
+                    class="flex flex-col flex-grow w-full gap-5 overflow-y-auto scroll"
+                    v-if="!insertMedicinesLoading"
+                  >
                     <div
                       v-for="(medicine, index) in filteredMedicines"
                       :key="index"
-                      class="p-5 w-full bg-[#F6F7F9] rounded-2xl"
+                      class="w-full p-5 bg-haze-50 dark:bg-primary-dark-800 rounded-2xl"
                     >
                       <div>
                         <div class="flex items-center gap-5">
                           <img
-                            :src="medicine.medicine.image"
+                            :src="medicine.medicine.image_url"
                             alt="medicine"
-                            class="w-10 h-10 rounded-full"
+                            class="object-cover rounded-full w-14 h-14"
                           />
                           <div>
                             <h1 class="text-lg">
@@ -333,6 +342,21 @@ const handleInventoryAdd = handleSubmit(() => {
                             <p class="text-sm">
                               {{ medicine.medicine.category }}
                             </p>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <button
+                              @click="removeMedicine(index)"
+                              class="text-xl text-red-600"
+                            >
+                              <Icon name="tabler:trash" />
+                            </button>
+
+                            <button
+                              class="text-xl text-primary-600"
+                              @click="handleEditMedicine(index)"
+                            >
+                              <Icon name="tabler:pencil" />
+                            </button>
                           </div>
                         </div>
 
@@ -354,27 +378,29 @@ const handleInventoryAdd = handleSubmit(() => {
                       </div>
                     </div>
                   </div>
-                  <div class="sticky bottom-0 left-0">
+                  <div
+                    class="flex flex-col flex-grow w-full gap-5 overflow-y-auto scroll"
+                    v-else
+                  >
+                    <P-Loader />
+                  </div>
+                  <div class="">
                     <button
+                      @click="onSubmit"
+                      :disabled="insertMedicinesLoading"
                       class="btn-primary w-full !py-4 text-center !rounded-2xl"
                     >
                       Save & Finish
+                      <Icon
+                        v-if="insertMedicinesLoading"
+                        name="line-md:loading-twotone-loop"
+                        class="text-2xl"
+                      />
                     </button>
                   </div>
                 </div>
-                <div
-                  v-else
-                  class="flex flex-col items-center justify-center w-full h-full"
-                >
-                  <!-- No data illustration -->
-                  <img
-                    src="/images/no-data.jpg"
-                    alt=""
-                    class="object-contain w-60"
-                  />
-                  <p class="mt-3 text-lg text-center text-gray-950">
-                    No medicine found
-                  </p>
+                <div v-else class="w-full h-full">
+                  <P-NoItems />
                 </div>
               </div>
             </div>

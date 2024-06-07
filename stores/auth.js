@@ -30,6 +30,11 @@ export const useAuthStore = defineStore(
       user.value = null;
     };
 
+    const $reset = () => {
+      user.value = null;
+      token.value = null;
+    };
+
     return {
       user,
       isAuthenticated,
@@ -38,6 +43,7 @@ export const useAuthStore = defineStore(
       setUser,
       setToken,
       userRoles,
+      $reset,
     };
   },
   { persist: true }

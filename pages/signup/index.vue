@@ -16,6 +16,7 @@ const {
   mutate: register,
   loading: registerLoading,
   onDone: onRegisterDone,
+  onError: onRegisterError,
 } = anonymousMutator(RegistrationMutation);
 
 const { handleSubmit } = useForm();
@@ -31,6 +32,8 @@ const onSubmit = handleSubmit((values) => {
       sex: userData.value.sex,
       birth_date: new Date(userData.value.birth_date)?.toISOString(),
       password: userData.value.password,
+      registered_with: "",
+      redirect_url: "http://localhost:3000/login",
     },
   });
 });
@@ -38,8 +41,10 @@ const onSubmit = handleSubmit((values) => {
 onRegisterDone(({ data }) => {
   console.log("User Registered", data);
 
-  router.push("/login");
+  router.push("/signup/verify");
 });
+
+onRegisterError((error) => {});
 </script>
 
 <template>
@@ -59,10 +64,6 @@ onRegisterDone(({ data }) => {
             alt=""
             class="w-full h-full"
           />
-          <div class="flex gap-1 py-3">
-            <div class="w-5 h-2 rounded cursor-pointer bg-primary-600"></div>
-            <div class="w-3 h-2 bg-gray-400 rounded cursor-pointer"></div>
-          </div>
         </div>
         <div class="">
           <form @submit.prevent="onSubmit">
@@ -172,6 +173,7 @@ onRegisterDone(({ data }) => {
                   class="text-sm text-gray-400"
                   label="Date Of Birth"
                   label-class="!mb-2 text-sm text-gray-400"
+                  :rules="`required`"
                   v-model="userData.birth_date"
                 />
               </div>
@@ -216,7 +218,7 @@ onRegisterDone(({ data }) => {
               </P-Textfield>
             </div>
 
-            <div class="flex items-center justify-between">
+            <!-- <div class="flex items-center justify-between">
               <P-CheckBox
                 name="terms"
                 label-class="!mb-2 text-sm text-gray-400"
@@ -224,7 +226,7 @@ onRegisterDone(({ data }) => {
                 class="text-sm"
                 v-model="userData.terms"
               ></P-CheckBox>
-            </div>
+            </div> -->
 
             <div class="mt-5">
               <button
@@ -233,7 +235,7 @@ onRegisterDone(({ data }) => {
               >
                 <Icon
                   v-if="registerLoading"
-                  name="eva:loader-2"
+                  name="mingcute:loading-3-fill"
                   class="text-xl animate-spin"
                 ></Icon>
                 Create an account
@@ -247,21 +249,6 @@ onRegisterDone(({ data }) => {
               </p>
             </div>
           </form>
-          <div class="mt-5">
-            <p class="text-center">Or signup with</p>
-            <div class="grid grid-cols-2 mt-5">
-              <button
-                class="flex items-center justify-center py-3 border rounded-full w-f3ll border-primary-300"
-              >
-                <Icon name="logos:google-icon" class="text-3xl"></Icon>
-              </button>
-              <button
-                class="flex items-center justify-center w-full py-3 ml-5 border rounded-full border-primary-300"
-              >
-                <Icon name="logos:facebook" class="text-3xl"></Icon>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

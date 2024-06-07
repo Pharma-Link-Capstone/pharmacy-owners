@@ -62,6 +62,11 @@ const props = defineProps({
     default: "",
     required: false,
   },
+  fieldClass: {
+    type: String,
+    default: "",
+    required: false,
+  },
 });
 console.log(props.modelValue);
 const {
@@ -92,7 +97,7 @@ watch(
         ></label
       >
     </slot>
-    <div class="mt-1 relative rounded-md shadow-sm">
+    <div class="relative mt-1 rounded-md shadow-sm">
       <textarea
         v-model="inputValue"
         @input="set($event)"
@@ -102,6 +107,7 @@ watch(
         :maxlength="maxlength"
         :id="id"
         :class="[
+          fieldClass,
           errorMessage
             ? 'border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-red-500'
             : 'border-[1px]  border-gray-300 group-hover:border-new-tale focus:border-new-tale focus:ring-0 disabled:bg-gray-100 disabled:cursor-not-allowed',
@@ -109,7 +115,7 @@ watch(
             ? props.placeholderStyle
             : ' placeholder-sheger_brown-200  :placeholder-sheger_light_gray-400',
         ]"
-        class="block w-full p-2 text-sheger_brown-200 placeholder-graytext-sheger_brown-200 focus:outline-none focus:border-primary-600 text-base rounded-md  :text-sheger_light_gray-400 bg-transparent  :border"
+        class="block w-full p-2 text-base bg-transparent rounded-md text-sheger_brown-200 placeholder-graytext-sheger_brown-200 focus:outline-none focus:border-primary-600 :text-sheger_light_gray-400 :border"
         :placeholder="placeholder"
         aria-invalid="true"
         aria-describedby="email-error"

@@ -1,0 +1,7 @@
+{
+  socials: basic_social_medias {
+    name
+    icon_url
+    id
+  }
+}

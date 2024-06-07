@@ -1,5 +1,21 @@
 mutation InsertPharmacyOne($object: pharmacies_insert_input!) {
-  insert_pharmacies_one(object: $object) {
+  insert_pharmacies_one(
+    object: $object
+    on_conflict: {
+      constraint: pharmacies_created_by_key
+      update_columns: [
+        name
+        description
+        logo_url
+        location_id
+        license_url
+        phone_number_1
+        phone_number_2
+        is_open
+        cover_image
+      ]
+    }
+  ) {
     id
   }
 }

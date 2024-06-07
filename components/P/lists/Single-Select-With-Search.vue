@@ -198,7 +198,7 @@ onMounted(() => {
   <div class="relative">
     <slot name="label"></slot>
     <!-- -------------------Header---------- -->
-    <div class="relative rounded-md shadow-sm font-body">
+    <div class="relative rounded-md font-body">
       <!-- @focus removed because of list open before focused  @focus="open" -->
       <button
         type="button"
@@ -218,12 +218,16 @@ onMounted(() => {
       >
         <div v-if="selectedItem" @click="show = true">
           <slot name="header" :item="selectedItem">
-            <div class="text-gray-700">
+            <div class="text-gray-700 dark:text-white">
               {{ selectedItem.name }}
             </div>
           </slot>
         </div>
-        <div class="text-gray-700" :class="placeholderClass" v-else>
+        <div
+          class="text-gray-700 dark:text-gray-200"
+          :class="placeholderClass"
+          v-else
+        >
           {{ props.placeholder || "Select" }}
         </div>
       </button>
@@ -258,23 +262,23 @@ onMounted(() => {
       </li>
 
       <!-- ----------------------Loading-------------------- -->
-      <!-- <li class="h-1">
-        <InputsProgress
+      <li class="h-1">
+        <P-Progress
           v-if="loading"
           class="w-full rounded-xl"
-          color1="bg-new-tale/40"
-          color2="bg-new-tale"
-          color3="bg-dark-blue"
+          color1="bg-primary-600/40"
+          color2="bg-primary-600"
+          color3="bg-primary-950"
           height="h-1"
-        ></InputsProgress>
-      </li> -->
+        ></P-Progress>
+      </li>
 
       <!-- -----------------------List items---------------- -->
       <li
         v-for="item in items"
         :key="item.id"
         @click="selectItem(item)"
-        class="relative px-3 py-3 text-gray-500 border-b cursor-pointer select-none hover:bg-blue-50"
+        class="relative px-3 py-3 text-gray-500 border-b cursor-pointer select-none hover:bg-blue-50 hover:dark:bg-primary-dark-800"
       >
         <slot name="row" :item="item">
           <div

@@ -1,0 +1,36 @@
+query GetPharmacies(
+  $filter: transactions_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [transactions_order_by!]
+) {
+  transactions(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
+    id
+    reason
+    transaction_medicines: transaction_medicnies {
+      id
+      quantity
+      medicine {
+        name
+        image_url
+        category {
+          name
+        }
+        composition
+        manufacturer
+      }
+    }
+    created_at
+  }
+
+  length: transactions_aggregate(where: $filter) {
+    aggregate {
+      count
+    }
+  }
+}

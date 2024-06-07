@@ -7,12 +7,16 @@
  * @param {*} clientId
  * @returns
  */
+
+const _role = ref("pharmacist");
+const _enabled = ref(true);
 export default function (
   query,
   id,
+  role = _role,
+  enabled = _enabled,
   additionalParams = {},
-  enabled = {},
-  clientId = "admin"
+  clientId = "authenticated"
 ) {
   const { onResult, loading, onError, refetch } = useQuery(
     query,
@@ -25,10 +29,12 @@ export default function (
       clientId: clientId || "admin",
       context: {
         headers: {
-          "x-hasura-role": "super:admin",
+          "x-hasura-role": role.value,
           // "x-hasura-admin-secret": "myadminsecretkey",
         },
       },
+
+      enabled: enabled.value,
     })
   );
 

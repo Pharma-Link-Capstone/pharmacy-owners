@@ -1,0 +1,32 @@
+query getNotifications(
+  $filter: communication_user_notifications_bool_exp
+  $order: [communication_user_notifications_order_by!]
+  $limit: Int
+  $offset: Int
+) {
+  notification_aggregate: communication_user_notifications_aggregate(
+    where: $filter
+  ) {
+    aggregate {
+      count
+    }
+  }
+
+  notifications: communication_user_notifications(
+    where: $filter
+    order_by: $order
+    limit: $limit
+    offset: $offset
+  ) {
+    id
+    is_seen
+    notification {
+      id
+      subject
+      body
+      created_at
+      notification_type
+      item_id
+    }
+  }
+}

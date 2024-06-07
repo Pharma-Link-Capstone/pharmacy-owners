@@ -202,10 +202,10 @@ watch(
         step="any"
         :id="id"
         :class="[
-          errorMessage
-            ? 'border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-red-500'
-            : 'border-[1px]  border-gray-300  focus:border-red-600 focus:ring- disabled:bg-gray-100 disabled:cursor-not-allowed',
           props.fieldClass ? props.fieldClass : '',
+          errorMessage
+            ? '!border-red-500 !border hover:!border-red-500 focus:!border-red-500 focus:!ring-red-500'
+            : 'border-[1px]  border-gray-300  focus:border-primary-600 focus:!ring-0 disabled:bg-gray-100 disabled:cursor-not-allowed',
           props.trailingIcon ? 'pr-0' : '',
           props.placeholderStyle
             ? props.placeholderStyle

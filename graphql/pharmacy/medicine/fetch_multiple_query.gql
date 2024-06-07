@@ -1,0 +1,35 @@
+query GetMedicines(
+  $filter: pharmacy_medicines_bool_exp
+  $limit: Int = 10
+  $offset: Int
+  $order: [pharmacy_medicines_order_by!] = [{ created_at: desc }]
+) {
+  pharmacy_medicines(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $order
+  ) {
+    id
+    quantity
+    expire_at
+    packet_size
+    price
+    created_at
+    updated_at
+    medicine {
+      name
+      composition
+      id
+      image_url
+      manufacturer
+      side_effects
+      uses
+    }
+  }
+  length: pharmacy_medicines_aggregate(where: $filter) {
+    aggregate {
+      count
+    }
+  }
+}

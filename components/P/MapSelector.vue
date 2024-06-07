@@ -2,7 +2,7 @@
 import { icon } from "leaflet";
 import { useFullscreen } from "@vueuse/core";
 
-const props = defineProps(["lat", "long", "init"]);
+const props = defineProps(["lat", "long", "init", "headerClass"]);
 const mapping = ref(null);
 const { isFullscreen, enter, exit, toggle } = useFullscreen(mapping);
 const userLocation = ref({});
@@ -134,11 +134,17 @@ const openModal = ref(false);
       "
       @click.prevent="openModal = true"
       class="w-full py-2 text-xs text-gray-500 border border-gray-300 rounded-md"
+      :class="[props.headerClass]"
     ></button>
   </div>
-  <PModal :auto-close="true" body-class="" v-model="openModal" v-if="openModal">
+  <P-Modal
+    :auto-close="true"
+    body-class="w-[800px]"
+    v-model="openModal"
+    v-if="openModal"
+  >
     <template #content>
-      <div class="relative w-[1000px] px-16 py-10 bg-white rounded-3xl">
+      <div class="relative px-5 py-5 bg-white rounded-3xl">
         <button @click="openModal = false">
           <Icon
             name="ic:baseline-close"
@@ -216,5 +222,5 @@ const openModal = ref(false);
         </div>
       </div>
     </template>
-  </PModal>
+  </P-Modal>
 </template>

@@ -1,0 +1,5 @@
+mutation DeletePharmacyRelations($id: uuid!) {
+  delete_pharmacy_social_medias(where: { pharmacy_id: { _eq: $id } }) {
+    affected_rows
+  }
+}

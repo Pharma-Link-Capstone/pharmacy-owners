@@ -1,0 +1,5 @@
+mutation seenNotifications {
+  update_communication_user_notifications(where: {}, _set: { is_seen: true }) {
+    affected_rows
+  }
+}

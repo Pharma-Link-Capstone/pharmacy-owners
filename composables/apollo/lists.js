@@ -5,9 +5,9 @@ const offset_ = ref(0);
 const limit_ = ref(100);
 const filter_ = ref({});
 
-const role_ = ref("super:admin");
+const role_ = ref("pharmacist");
 
-const client_ = ref("admin");
+const client_ = ref("authenticated");
 
 const order_ = ref([]);
 
@@ -23,7 +23,7 @@ export default function (
     client = client_,
   }
 ) {
-  console.log("order", order);
+  console.log("lists.js: query", role.value);
   const { onResult, onError, loading, refetch } = useQuery(
     query,
     () => ({
@@ -38,7 +38,6 @@ export default function (
       context: {
         headers: {
           "x-hasura-role": role.value,
-          // "x-hasura-admin-secret": "myadminsecretkey",
         },
       },
       enabled: enabled.value,
