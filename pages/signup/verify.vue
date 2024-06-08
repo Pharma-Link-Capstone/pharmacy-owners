@@ -2,6 +2,16 @@
 definePageMeta({
   layout: "auth",
 });
+
+const { getToken } = useApollo();
+
+const token = ref("");
+
+onMounted(() => {
+  getToken("authenticated").then((data) => {
+    token.value = data;
+  });
+});
 </script>
 <template>
   <div>

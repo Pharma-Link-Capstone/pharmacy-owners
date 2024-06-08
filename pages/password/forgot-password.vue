@@ -1,39 +1,34 @@
 <script setup>
 import mutator_anonymous from "~/composables/apollo/mutator_anonymous";
-import VerifyEmail from "~/graphql/auth/verify-email.gql";
+import ForgotPassword from "~/graphql/auth/forgot-password-by-email.gql";
 import useNotify from "~/use/notify";
 
 const { handleSubmit } = useForm();
 
 const { notify } = useNotify();
 
-const email = ref("");
-
 const {
-  mutate: verifyEmail,
-  onDone: onVerifyEmailDone,
+  mutate: resetPassword,
+  onDone: onResetPasswordDone,
   loading,
   onError,
-} = mutator_anonymous(VerifyEmail);
+} = mutator_anonymous(ForgotPassword);
 
 const onSubmit = handleSubmit((values) => {
-  verifyEmail({
-    email: values?.email,
-    reset_url:
-      "http://localhost:3000/verify-email/success?verified=true&email=" +
-      values?.email,
+  resetPassword({
+    credentials: {
+      email: values?.email,
+      reset_url: "http://localhost:3000/password/reset-password",
+    },
   });
 });
 
-onVerifyEmailDone(({ data }) => {
+onResetPasswordDone(({ data }) => {
   notify({
     title: "Email Sent",
-    description:
-      "We have sent you an email to verify your email. Please check your email.",
-    cardClass: "bg-green-100",
+    description: "We have sent you an email to reset your password.",
+    cardClass: "bg-green-200",
   });
-
-  router.push("/verify-email/success?email=" + email.value);
 });
 onError((error) => {
   notify({
@@ -46,9 +41,6 @@ onError((error) => {
 definePageMeta({
   layout: "auth",
 });
-
-const router = useRouter();
-const route = useRoute();
 </script>
 
 <template>
@@ -73,18 +65,19 @@ const route = useRoute();
           <span>Back to login</span>
         </nuxt-link>
         <form @submit.prevent="onSubmit" class="max-w-[500px] space-y-12">
-          <h1 class="text-4xl poppins-bold text-gray-950">Verify your email</h1>
+          <h1 class="text-4xl poppins-bold text-gray-950">
+            Forgot your password?
+          </h1>
           <p class="mt-4">
-            Please enter the email address you used to sign up for PharmaLink.
-            We will send you an email with a link to verify your account.
+            Don’t worry, happens to all of us. Enter your email below to recover
+            your password
           </p>
 
           <div class="mt-6">
             <P-Textfield
               placeholder="Email"
-              field-class="!py-3 pl-12 bg-primary-50 !border-0 shadow-md rounded-2xl"
+              field-class="!py-3 pl-12 bg-gray-50 rounded-2xl"
               class=""
-              v-model="email"
               name="email"
               rules="required|email"
             >
@@ -102,6 +95,13 @@ const route = useRoute();
               <span v-if="!loading">Verify email</span>
               <Icon v-else name="eos-icons:bubble-loading" />
             </button>
+          </div>
+
+          <div>
+            <p class="mt-4 text-center">
+              Didn't receive a email?
+              <button @click="onSubmit" class="text-primary-600">Resend</button>
+            </p>
           </div>
         </form>
       </div>

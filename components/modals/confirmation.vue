@@ -103,7 +103,7 @@ const open = computed({
               leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6"
+                class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-primary-dark-900 sm:my-8 sm:w-full sm:max-w-lg sm:p-6"
               >
                 <div class="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
                   <button
@@ -133,23 +133,25 @@ const open = computed({
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <DialogTitle
                       as="h3"
-                      class="text-base font-semibold leading-6 text-gray-900"
+                      class="text-xl font-semibold leading-6 text-gray-900 dark:text-white"
                       >{{ title }}</DialogTitle
                     >
                     <div class="mt-2" v-if="assuranceText">
-                      <p class="text-sm text-gray-500">
+                      <p
+                        class="font-semibold text-gray-500 dark:text-white text-lh"
+                      >
                         {{ assuranceText }}
                       </p>
                     </div>
                     <div class="mt-2">
-                      <p class="text-sm text-gray-500">
+                      <p class="text-sm text-gray-500 dark:text-gray-100">
                         {{ description }}
                       </p>
                     </div>
                   </div>
                 </div>
                 <div
-                  class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse"
+                  class="mt-5 sm:mt-8 sm:flex sm:flex-row-reverse"
                   :class="actionsClass"
                 >
                   <button

@@ -12,5 +12,16 @@ query GetMedicines(
     manufacturer
     side_effects
     uses
+
+    pharmacy_medicines_aggregate {
+      aggregate {
+        count
+      }
+    }
+    searches_aggregate {
+      aggregate {
+        count
+      }
+    }
   }
 }
