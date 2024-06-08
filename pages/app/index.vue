@@ -262,6 +262,9 @@ const ratingValue = computed(() => {
           fullRowClass="hover:bg-gray-50 dark:hover:bg-primary-dark-800 cursor-pointer"
         />
       </div> -->
+      <div class="">
+        <DashboardMostSearchedMedicines></DashboardMostSearchedMedicines>
+      </div>
     </div>
   </div>
 </template>

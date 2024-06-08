@@ -69,6 +69,11 @@ const props = defineProps({
     default: "",
     required: false,
   },
+  customError: {
+    type: String,
+    default: "",
+    required: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -149,8 +154,9 @@ const input = (e) => {
       :visible="errorMessage"
       class="mt-2 text-sm text-red-600"
       id="email-error"
+      v-if="errorMessage"
     >
-      {{ errorMessage }} &nbsp;
+      {{ customError || errorMessage }} &nbsp;
     </p>
   </div>
 </template>

@@ -1,0 +1,6 @@
+mutation Verify($email: String!, $reset_url: String) {
+  sendEmailVerifyLink(arg1: { email: $email, reset_url: $reset_url }) {
+    message
+    success
+  }
+}

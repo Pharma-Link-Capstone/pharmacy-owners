@@ -71,20 +71,20 @@ const openNotification = ref(false);
 <template>
   <!-- ---------------Notification--------------- -->
 
-  <!-- <CommonNotification
+  <CommonNotification
     v-if="openNotification"
     v-model="openNotification"
-  ></CommonNotification> -->
+  ></CommonNotification>
 
   <Modals-confirmation
     v-model="openConfirmationModal"
     :assurance-text="'Are you sure you want to logout?'"
     description="You will be logged out of the system. Do you want to continue?"
     icon="ri:logout-circle-r-line"
-    icon-class="rotate-90 text-haze-600"
+    icon-class="text-red-600 rotate-90"
     title="Logout"
     actions-class="!justify-between"
-    iconWrapperClass="mx-auto flex h-12 w-12 flex-shrink-0 items-center text-red-600 justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+    iconWrapperClass="mx-auto flex h-12 w-12 flex-shrink-0 items-center text-red-600 justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"
     confirm-button-class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
     @confirm="handleLogout"
   ></Modals-confirmation>

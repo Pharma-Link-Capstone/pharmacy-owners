@@ -9,6 +9,16 @@ definePageMeta({
   layout: "auth",
 });
 
+useHead({
+  title: "Pharmalink | Login",
+  meta: [
+    {
+      name: "description",
+      content: "Login to access your PharmaLink account",
+    },
+  ],
+});
+
 const router = useRouter();
 
 const { notify } = useNotify();
@@ -125,9 +135,11 @@ onLoginError((error) => {
                 </P-Textfield>
               </div>
 
+              <recaptcha />
+
               <div class="flex items-center justify-between">
                 <div></div>
-                <nuxt-link to="/reset-password" class="text-[#FF8682]"
+                <nuxt-link to="/password/forgot-password" class="text-[#FF8682]"
                   >Forgot Password</nuxt-link
                 >
               </div>

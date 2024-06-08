@@ -39,21 +39,24 @@ const onSubmit = handleSubmit((values) => {
 });
 
 onRegisterDone(({ data }) => {
-  console.log("User Registered", data);
-
-  router.push("/signup/verify");
+  router.push("/verify-email/success?email=" + userData.value.email);
 });
 
 onRegisterError((error) => {});
+
+// Computed property to 18 years ago
+const eighteenYearsAgo = computed(() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 18);
+  return date.toISOString().split("T")[0];
+});
 </script>
 
 <template>
   <div>
     <div class="flex flex-col h-full">
-      <div>
-        <h1 class="text-4xl font-bold text-right red-hat-display">
-          Pharma Link
-        </h1>
+      <div class="flex items-center justify-end">
+        <img src="/images/pharmalink-logo.png" alt="" class="w-20" />
       </div>
       <div class="grid items-center flex-grow grid-cols-2 gap-20 mt-10">
         <div
@@ -147,6 +150,7 @@ onRegisterError((error) => {});
                 <div class="flex items-center mt-2">
                   <P-Radio
                     name="sex"
+                    rules="required"
                     label="Male"
                     v-model="userData.sex"
                     value="MALE"
@@ -157,6 +161,7 @@ onRegisterError((error) => {});
                   </P-Radio>
                   <P-Radio
                     name="sex"
+                    rules="required"
                     label="Female"
                     v-model="userData.sex"
                     value="FEMALE"
@@ -173,7 +178,8 @@ onRegisterError((error) => {});
                   class="text-sm text-gray-400"
                   label="Date Of Birth"
                   label-class="!mb-2 text-sm text-gray-400"
-                  :rules="`required`"
+                  :rules="`required|maxDate:${eighteenYearsAgo}`"
+                  customError="You must be 18 years or older to register"
                   v-model="userData.birth_date"
                 />
               </div>

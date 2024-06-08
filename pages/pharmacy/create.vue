@@ -12,6 +12,14 @@ definePageMeta({
   layout: "default",
 });
 
+useHead({
+  title: "Pharmalink | Create Pharmacy",
+  meta: [{ name: "description", content: "My amazing site." }],
+  bodyAttrs: {
+    class: "test",
+  },
+});
+
 const route = useRoute();
 const router = useRouter();
 
