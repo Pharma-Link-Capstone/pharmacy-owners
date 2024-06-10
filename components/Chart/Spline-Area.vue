@@ -48,7 +48,6 @@ const chartOptions = ref({
     show: false,
   },
   xaxis: {
-    type: "datetime",
     categories: props.xAxisVariables,
     show: false,
   },
@@ -72,6 +71,7 @@ console.log(props);
   <div>
     <VueApexChart
       type="area"
+      :key="xAxisVariables"
       :options="chartOptions"
       :series="series"
       class="w-full h-[100px]"

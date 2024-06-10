@@ -26,14 +26,12 @@ const notificationsTypes = ref([
 
 const handleClick = () => {
   if (
-    props.userNotification?.notification?.notification_type == "NEW_PHARMACY" ||
-    props.userNotification?.notification?.notification_type == "PHARMACY_REPORT"
+    props.userNotification?.notification?.notification_type ==
+    "PHARMACY_VERIFICATION"
   ) {
     if (props.userNotification?.notification?.item_id) {
       emit("close");
-      router.push(
-        `/pharmacies/${props.userNotification?.notification?.item_id}`
-      );
+      router.push(`/app/pharmacy-profile/`);
     }
   }
 };
@@ -52,19 +50,30 @@ const notificationType = computed(() => {
   <div
     @click="handleClick"
     :class="{
-      'bg-primary-200': !userNotification?.is_seen,
+      'bg-primary-100 dark:bg-primary-dark-600': !userNotification?.is_seen,
+      ' shadow rounded-xl dark:bg-primary-dark-950': userNotification?.is_seen,
     }"
-    class="flex flex-col w-full p-2 mb-2 gap-y-4 hover:cursor-pointer"
+    class="flex flex-col w-full px-3 py-2 mb-2 dark:text-white gap-y-4 hover:cursor-pointer"
   >
     <div class="flex items-center justify-between w-full overflow-y-auto">
       <div class="flex items-center w-full gap-2">
         <Icon
-          :name="notificationType?.icon"
+          name="lucide:badge-check"
           width="23"
           height="23"
-          color="gray-900"
+          class="text-haze-600"
+          v-if="
+            userNotification?.notification?.subject == 'Pharmacy Verification'
+          "
         />
-        <h1 class="pl-2 font-normal capitalize text-md font-poppins">
+        <Icon
+          width="23"
+          height="23"
+          class="text-haze-600"
+          name="mynaui:message"
+          v-else
+        />
+        <h1 class="font-normal capitalize text-md font-poppins">
           {{ userNotification?.notification?.subject }}
         </h1>
       </div>
@@ -79,15 +88,17 @@ const notificationType = computed(() => {
       </button>
     </div>
 
-    <p class="text-sm font-light text-gray-700 capitalize font-poppins">
+    <p
+      class="text-sm font-light text-gray-700 capitalize dark:text-white font-poppins"
+    >
       {{ userNotification.notification?.body }}
     </p>
 
-    <div class="text-gray-700">
+    <div class="text-gray-700 dark:text-white">
       {{
         format(
           parseISO(userNotification.notification?.created_at),
-          " HH:mm dd MMM yyyy"
+          "dd MMM, yyyy"
         )
       }}
     </div>

@@ -11,6 +11,8 @@ const client_ = ref("authenticated");
 
 const order_ = ref([]);
 
+const poll_ = ref(0);
+
 export default function (
   query,
   {
@@ -21,6 +23,7 @@ export default function (
     enabled = enable,
     role = role_,
     client = client_,
+    poll = poll_,
   }
 ) {
   console.log("lists.js: query", role.value);
@@ -41,6 +44,7 @@ export default function (
         },
       },
       enabled: enabled.value,
+      pollInterval: poll.value,
     })
   );
   return {

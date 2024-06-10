@@ -15,6 +15,7 @@ query GetPharmacies(
     is_verified
     is_open
     logo_url
+    cover_image
     license_url
     description
     medicines_count: pharmacy_medicines_aggregate {
@@ -59,6 +60,12 @@ query GetPharmacies(
         }
       }
     }
+    transactions_aggregate {
+      aggregate {
+        count
+      }
+    }
+
     visits: pharmacy_visits_aggregate {
       aggregate {
         count
@@ -79,6 +86,13 @@ query GetPharmacies(
         media {
           url
         }
+      }
+    }
+    expired: pharmacy_medicines_aggregate(
+      where: { is_expired: { _eq: true } }
+    ) {
+      aggregate {
+        count
       }
     }
   }

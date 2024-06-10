@@ -57,7 +57,7 @@ const props = defineProps({
     // default: () => [],
   },
   selected: {
-    type: String,
+    type: [String, Array, Object],
   },
   loading: {
     type: Boolean,
@@ -138,7 +138,6 @@ const queryList = () => {
 const clear = () => {
   search.value = undefined;
   inputValue.value = "";
-  selected.value = "";
   show.value = false;
   emit("update:modelValue", undefined);
   emit("update:selected", undefined);
@@ -181,9 +180,15 @@ watch(
 
 onMounted(() => {
   if (props.returnObject) {
+    if (!props.modelValue) {
+      return;
+    }
     inputValue.value = props.modelValue;
     selectedItem.value = props.modelValue;
   } else {
+    if (!props.modelValue?.id) {
+      return;
+    }
     inputValue.value = props.modelValue;
     selectedItem.value = props.items.find(
       (item) => item.id == props.modelValue
@@ -233,8 +238,15 @@ onMounted(() => {
       </button>
 
       <!-- -----------------------Chevron------------------- -->
-      <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-        <Icon name="tabler:chevron-down" color="gray" class="text-2xl" />
+      <div class="absolute inset-y-0 top-0 right-0 flex items-center pr-3">
+        <Icon
+          name="material-symbols:close"
+          color="gray"
+          class="text-2xl"
+          v-if="props.clearable && inputValue"
+          @click="clear"
+        />
+        <Icon name="tabler:chevron-down" color="gray" class="text-2xl" v-else />
       </div>
     </div>
 

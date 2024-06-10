@@ -6,6 +6,8 @@ export const useAuthStore = defineStore(
   () => {
     const user = ref(null);
 
+    const PhID = ref(null);
+
     const token = ref(null);
 
     const isAuthenticated = computed(() => {
@@ -35,6 +37,10 @@ export const useAuthStore = defineStore(
       token.value = null;
     };
 
+    const setPhID = (newPhID) => {
+      PhID.value = newPhID;
+    };
+
     return {
       user,
       isAuthenticated,
@@ -44,6 +50,8 @@ export const useAuthStore = defineStore(
       setToken,
       userRoles,
       $reset,
+      PhID,
+      setPhID,
     };
   },
   { persist: true }

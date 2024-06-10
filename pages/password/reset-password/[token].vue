@@ -58,8 +58,8 @@ definePageMeta({
       @click="$router.push('/')"
     >
       <img
-        class="object-contain w-[70px] pl-2 pt-6 h-auto"
-        src="/images/logo.svg"
+        class="object-contain w-24 h-auto pt-6 pl-2"
+        src="/images/pharmalink-logo.png"
         alt="Your Company"
       />
     </div>
@@ -117,7 +117,7 @@ definePageMeta({
       </div>
       <div>
         <img
-          src="/images/temp/lock3.png"
+          src="/images/lock3.png"
           class="object-cover max-h-[700px] pb-6"
           alt="lock image"
         />

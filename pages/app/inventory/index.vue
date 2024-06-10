@@ -34,19 +34,23 @@ const analytics = computed(() => [
     icon: "material-symbols:reviews",
   },
   {
-    title: "Impression",
-    value: 0,
+    title: "Expired",
+    value: pharmacy.value?.expired?.aggregate?.count || 0,
     icon: "wpf:view-file",
   },
   {
-    title: "Viewed",
-    value: pharmacy.value?.summary?.view_count || 0,
-    icon: "iconoir:eye",
+    title: "Total Price",
+    value:
+      medicines.value?.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0
+      ) || 0,
+    icon: "tdesign:money",
   },
   {
-    title: "Interactions",
-    value: 0,
-    icon: "carbon:touch-interaction",
+    title: "Total Quantity",
+    value: medicines.value?.reduce((acc, item) => acc + item.quantity, 0),
+    icon: "heroicons-solid:cube",
   },
 ]);
 
@@ -94,6 +98,7 @@ const openModal = ref(false);
 const limit = ref(10);
 const page = ref(1);
 const medicineSort = ref([]);
+const expired = ref(0);
 
 const totalItems = ref(0);
 const offset = computed(() => (page.value - 1) * limit.value);
@@ -120,6 +125,58 @@ const medicineSearchTerm = computed({
     });
   },
 });
+
+const filterFromQuery = computed(() => {
+  const query = route.query;
+
+  const _and = [];
+
+  if (query.category) {
+    _and.push({
+      medicine: {
+        category: {
+          name: {
+            _eq: query.category,
+          },
+        },
+      },
+    });
+  }
+
+  if (query.startPrice) {
+    _and.push({
+      price: {
+        _gte: parseFloat(query.startPrice),
+      },
+    });
+  }
+
+  if (query.endPrice) {
+    _and.push({
+      price: {
+        _lte: parseFloat(query.endPrice),
+      },
+    });
+  }
+
+  if (query.startDate) {
+    _and.push({
+      created_at: {
+        _gte: query.startDate,
+      },
+    });
+  }
+
+  if (query.endDate) {
+    _and.push({
+      created_at: {
+        _lte: query.endDate,
+      },
+    });
+  }
+
+  return _and;
+});
 const medicineFilter = computed(() => ({
   _and: [
     {
@@ -134,6 +191,7 @@ const medicineFilter = computed(() => ({
         },
       },
     },
+    ...filterFromQuery.value,
   ],
 }));
 
@@ -150,7 +208,8 @@ const {
 
 onFetchMedicineResult(({ data }) => {
   medicines.value = data?.pharmacy_medicines;
-  totalItems.value = data?.length?.aggregate.count;
+  totalItems.value = data?.length?.aggregate?.count;
+  expired.value = data?.expired?.aggregate?.count;
 });
 
 watch([limit, page], () => {
@@ -193,6 +252,27 @@ const handleSearch = handleSubmit((values) => {
     filter: medicineFilter.value,
   });
 });
+
+/*------------------- Dosage Instructions ---------------------*/
+const openDosageModal = ref(false);
+
+function isTimeInThePast(givenTime) {
+  const givenDate = new Date(givenTime);
+
+  const now = new Date();
+
+  return givenDate < now;
+}
+
+useHead({
+  title: "Medicines | Pharmalink",
+  meta: [
+    {
+      name: "description",
+      content: "Dashboard",
+    },
+  ],
+});
 </script>
 <template>
   <PharmacyInventoryAddModal
@@ -220,6 +300,11 @@ const handleSearch = handleSubmit((values) => {
     @success="refetchMedicines"
   />
 
+  <PharmacyInventoryDosageModal
+    v-if="openDosageModal"
+    v-model="openDosageModal"
+  />
+
   <div>
     <!-- Analytic Cards -->
     <div class="grid grid-cols-5 gap-12" v-if="!fetchPharmacyLoading">
@@ -238,7 +323,8 @@ const handleSearch = handleSubmit((values) => {
     <!-- Body -->
     <div class="p-5 mt-5 bg-white dark:bg-primary-dark-900">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
+          <Medicines-Filter @filter="refetchMedicines" />
           <form @submit.prevent="handleSearch">
             <P-Textfield
               placeholder="Search"
@@ -273,7 +359,10 @@ const handleSearch = handleSubmit((values) => {
           </div>
         </div>
 
-        <div v-if="isPharmacist" class="flex items-center gap-3">
+        <div
+          v-if="isPharmacist && pharmacy.status == 'ACTIVE'"
+          class="flex items-center gap-3"
+        >
           <button
             @click="openModal = true"
             class="px-3 py-1.5 rounded-md flex items-center justify-center gap-2 bg-primary-600 text-white"
@@ -286,6 +375,17 @@ const handleSearch = handleSubmit((values) => {
           >
             <icon name="hugeicons:package-out-of-stock" class="text-lg" />
             Stock Out
+          </button>
+
+          <button
+            @click="openDosageModal = true"
+            class="dark:bg-primary-dark-700 px-3 py-1.5 rounded-md btn-primary-outline dark:text-gray-100"
+          >
+            <icon
+              name="material-symbols:integration-instructions-outline"
+              class="text-lg"
+            />
+            Enter Dosage Instructions
           </button>
         </div>
       </div>
@@ -329,7 +429,7 @@ const handleSearch = handleSubmit((values) => {
           <!-- Category -->
           <template #category="{ item }">
             <p class="dark:text-gray-100">
-              {{ item?.medicine?.category || "Tablet" }}
+              {{ item?.medicine?.category?.name || "--" }}
             </p>
           </template>
 
@@ -345,8 +445,14 @@ const handleSearch = handleSubmit((values) => {
 
           <!-- Expiry Date -->
           <template #expire_at="{ item }">
-            <p class="dark:text-gray-100">
+            <p
+              class="dark:text-gray-100"
+              v-if="!isTimeInThePast(item?.expire_at)"
+            >
               {{ format(item?.expire_at, "MMM dd, yyyy") }}
+            </p>
+            <p class="dark:text-gray-100" v-else>
+              <span class="text-red-500">Expired</span>
             </p>
           </template>
 
@@ -369,7 +475,7 @@ const handleSearch = handleSubmit((values) => {
               <MenuItems
                 class="absolute right-0 z-20 mt-2 overflow-hidden bg-white rounded shadow w-36 dark:bg-primary-dark-950"
               >
-                <MenuItem
+                <!-- <MenuItem
                   class="w-full px-3 py-2 text-left hover:bg-haze-200 dark:text-gray-100 dark:hover:!bg-primary-dark-800"
                 >
                   <button
@@ -384,9 +490,10 @@ const handleSearch = handleSubmit((values) => {
                     <Icon name="tabler:list-details" class="text-lg" /> View
                     Details
                   </button>
-                </MenuItem>
+                </MenuItem> -->
                 <MenuItem
                   class="w-full px-3 py-2 text-left hover:bg-haze-200 dark:text-gray-100 dark:hover:!bg-primary-dark-800"
+                  v-if="isPharmacist && pharmacy.status == 'ACTIVE'"
                 >
                   <button
                     @click="

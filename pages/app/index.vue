@@ -1,15 +1,28 @@
 <script setup>
 import FetchPharmacies from "@/graphql/pharmacy/fetch_multiple_query.gql";
+import FetchChartData from "@/graphql/chart.gql";
 import lists from "~/composables/apollo/lists";
 import { useAuthStore } from "~/stores/auth";
+import { parseISO, format } from "date-fns";
 
 definePageMeta({
   layout: "app",
 });
 
-const PhID = computed(() => localStorage.getItem("PhID"));
+const { userRoles, PhID: PhIDFromStore } = useAuthStore();
+
+const PhID = computed({
+  get: () => localStorage.getItem("PhID") || PhIDFromStore,
+  set: (value) => localStorage.setItem("PhID", value),
+});
 
 /*--- Fetch Pharmacies ---*/
+const role = computed(() => {
+  if (userRoles.includes("pharmacist")) {
+    return "pharmacist";
+  }
+  return "user";
+});
 const pharmacy = ref({});
 const pharmacyFilter = computed(() => {
   return {
@@ -19,12 +32,96 @@ const pharmacyFilter = computed(() => {
   };
 });
 
+const pharmacyEnabled = computed(() => {
+  return !!PhID.value;
+});
+
 const { onResult: onFetchPharmaciesResult, loading: fetchPharmaciesLoading } =
-  lists(FetchPharmacies, { filter: pharmacyFilter });
+  lists(FetchPharmacies, {
+    filter: pharmacyFilter,
+    role,
+    enabled: pharmacyEnabled,
+  });
 
 onFetchPharmaciesResult(({ data }) => {
   pharmacy.value = data?.pharmacies[0];
 });
+
+/*--- Fetch Chart Data ---*/
+const chartData = ref({});
+const { onResult: onFetchChartDataResult, loading: fetchChartDataLoading } =
+  lists(FetchChartData, {
+    role,
+    filter: computed(() => PhID.value),
+    enabled: pharmacyEnabled,
+  });
+
+onFetchChartDataResult(({ data }) => {
+  chartData.value = data;
+});
+
+const stockInPercentage = computed(() => {
+  if (
+    !chartData.value?.stockInPercent ||
+    chartData.value?.stockInPercent?.length == 0
+  )
+    return 0;
+  return chartData.value?.stockInPercent[0].week;
+});
+
+const stockOutPercentage = computed(() => {
+  if (
+    !chartData.value?.stockOutPercent ||
+    chartData.value?.stockOutPercent?.length == 0
+  )
+    return 0;
+  return chartData.value?.stockOutPercent[0]?.week;
+});
+
+const stockInData = computed(() => {
+  return {
+    name: "Stock In",
+    data: chartData.value?.stockIn?.map((item) => item.out_quantity),
+  };
+});
+
+const stockOutData = computed(() => {
+  return {
+    name: "Stock Out",
+    data: chartData.value?.stockOut?.map((item) => item.out_quantity),
+  };
+});
+
+const dailyVisit = computed(() => {
+  return [
+    {
+      name: "Visitors",
+      data: chartData.value?.dailyVisitsInWeek?.map((item) => item.visit_count),
+    },
+  ];
+});
+
+const totalStockIn = computed(() => {
+  let _sum = 0;
+  stockInData.value.data?.map((stock) => {
+    _sum += parseInt(stock);
+  });
+  return _sum;
+});
+
+const totalStockOut = computed(() => {
+  let _sum = 0;
+  stockOutData.value.data?.map((stock) => {
+    _sum += parseInt(stock);
+  });
+  return _sum;
+});
+
+const xAxisVariables = computed(() =>
+  chartData.value?.stockIn?.map((item) =>
+    format(parseISO(item.transaction_date), "eee")
+  )
+);
 
 const analytics = computed(() => [
   {
@@ -38,8 +135,8 @@ const analytics = computed(() => [
     icon: "material-symbols:reviews",
   },
   {
-    title: "Impression",
-    value: 0,
+    title: "Transaction",
+    value: pharmacy.value?.transactions_aggregate?.aggregate?.count || 0,
     icon: "wpf:view-file",
   },
   {
@@ -48,61 +145,9 @@ const analytics = computed(() => [
     icon: "iconoir:eye",
   },
   {
-    title: "Interactions",
-    value: 0,
+    title: "Expired",
+    value: pharmacy.value?.expired?.aggregate?.count || 0,
     icon: "carbon:touch-interaction",
-  },
-]);
-
-const topSearchedPlaceHeader = ref([
-  {
-    text: "Area",
-    value: "area",
-  },
-  {
-    text: "Percentage",
-    value: "percentage",
-  },
-  {
-    text: "Quantity",
-    value: "quantity",
-  },
-  {
-    text: "Date",
-    value: "date",
-  },
-]);
-
-const topSearchedPlaceItems = ref([
-  {
-    area: "Addis Ababa",
-    percentage: "30%",
-    quantity: 300,
-    date: "2021-09-01",
-  },
-  {
-    area: "Koye",
-    percentage: "20%",
-    quantity: 200,
-    date: "2021-09-01",
-  },
-  {
-    area: "Bahir Dar",
-    percentage: "10%",
-    quantity: 100,
-    date: "2021-09-01",
-  },
-  {
-    area: "Gondar",
-    percentage: "5%",
-    quantity: 50,
-    date: "2021-09-01",
-  },
-  {
-    area: "Hawassa",
-    percentage: "5%",
-    quantity: 50,
-    date: "2021-09-01",
   },
 ]);
 
@@ -113,11 +158,33 @@ const ratingValue = computed(() => {
     val += review.rating;
   });
 
-  return val / pharmacy.value?.reviews.length;
+  return val / pharmacy.value?.reviews?.length;
+});
+
+const showTransactionChart = computed(() => {
+  return (
+    role.value == "pharmacist" &&
+    stockInData.value.data?.length > 0 &&
+    stockOutData.value.data?.length > 0
+  );
+});
+
+const showTrafficChart = computed(() => {
+  return role.value == "pharmacist" && dailyVisit.value?.length > 0;
+});
+
+useHead({
+  title: "Dashboard | Pharmalink",
+  meta: [
+    {
+      name: "description",
+      content: "Dashboard",
+    },
+  ],
 });
 </script>
 <template>
-  <div class="w-full">
+  <div class="w-full" v-if="!!PhID">
     <!-- Analytic Cards -->
     <div class="grid grid-cols-5 gap-12" v-if="!fetchPharmaciesLoading">
       <Dashboard-Card-Analytic
@@ -135,83 +202,181 @@ const ratingValue = computed(() => {
     </div>
 
     <!--  -->
+
     <div class="grid grid-cols-12 gap-10 mt-5">
       <!-- Inventory Chart -->
+      <!-- Chart Skeleton Loader -->
+      <div v-if="fetchChartDataLoading" class="w-full h-full col-span-6">
+        <SkeletonLoadingAreaChart />
+      </div>
       <div
-        class="flex items-center col-span-6 px-10 py-6 bg-white dark:bg-primary-dark-900 rounded-3xl"
+        v-else-if="!showTransactionChart"
+        class="flex flex-col items-center justify-center w-full h-full col-span-6 p-6 text-center bg-white rounded-lg shadow-md dark:bg-primary-dark-900"
       >
-        <div class="flex flex-col gap-10">
-          <div>
-            <div class="">
-              <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-[#4318FF]"></span>
-                  <span
-                    class="text-3xl font-bold text-gray-950 dark:text-gray-200"
-                    >37</span
-                  >
-                </div>
-                <div class="flex items-center gap-1 text-green-500">
-                  <Icon name="uil:arrow-up" />
-                  <span class="text-sm">+3.5%</span>
-                </div>
-              </div>
-              <p class="text-sm font-medium text-gray-500">Total Stock In</p>
-            </div>
-          </div>
-          <div>
-            <div class="">
-              <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                  <span class="w-4 h-4 rounded-full bg-[#6AD2FF]"></span>
-                  <span
-                    class="text-3xl font-bold text-gray-950 dark:text-gray-200"
-                    >12</span
-                  >
-                </div>
-                <div class="flex items-center gap-1 text-red-500">
-                  <Icon name="uil:arrow-up" class="rotate-180" />
-                  <span class="text-sm">-3.5%</span>
-                </div>
-              </div>
-              <p class="text-sm font-medium text-gray-500">Total Stock Out</p>
-            </div>
+        <div>
+          <div class="">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-12 h-12 mx-auto text-gray-500 dark:text-haze-100"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 17v-2a4 4 0 100-8 4 4 0 100 8v2m0 0h6m-6 0v2m0-6h6m-6 0v-2m0 0h6"
+              />
+            </svg>
+            <h2
+              class="mt-4 text-lg font-semibold text-gray-700 dark:text-haze-100"
+            >
+              No Data Available
+            </h2>
+            <p class="mt-2 text-gray-600 dark:text-haze-100">
+              There is currently no data to display in the chart.
+            </p>
           </div>
         </div>
-        <ChartSplineArea
-          class="w-[500px] h-[300px]"
-          :series="[
-            {
-              name: 'Stock In',
-              data: [30, 40, 35, 50, 49, 60, 70, 91, 125],
-            },
-            {
-              name: 'Stock Out',
-              data: [20, 30, 25, 40, 39, 50, 60, 91, 105],
-            },
-          ]"
-          :x-axis-variables="[
-            '2021-09-01',
-            '2021-09-02',
-            '2021-09-03',
-            '2021-09-04',
-            '2021-09-05',
-            '2021-09-06',
-            '2021-09-07',
-            '2021-09-08',
-            '2021-09-09',
-          ]"
-        />
+      </div>
+      <div
+        class="col-span-6 px-10 py-6 bg-white dark:bg-primary-dark-900 rounded-3xl"
+        v-else
+      >
+        <h1 class="text-xl font-semibold dark:text-white">
+          Weekly Stock In vs. Stock Out Analysis
+        </h1>
+        <div class="flex items-center">
+          <div class="flex flex-col gap-10">
+            <div>
+              <div class="">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-[#4318FF]"></span>
+                    <span
+                      class="text-3xl font-bold text-gray-950 dark:text-gray-200"
+                      >{{ totalStockIn }}</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center gap-1"
+                    :class="
+                      stockOutPercentage >= 0
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    "
+                  >
+                    <Icon name="uil:arrow-up" v-if="stockInPercentage >= 0" />
+                    <Icon name="uil:arrow-down" v-else />
+                    <span class="text-sm"
+                      >{{ stockInPercentage >= 0 ? "+" : "-"
+                      }}{{ stockInPercentage }}%</span
+                    >
+                  </div>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-haze-100">
+                  Total Stock In
+                </p>
+              </div>
+            </div>
+            <div>
+              <div class="">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-[#6AD2FF]"></span>
+                    <span
+                      class="text-3xl font-bold text-gray-950 dark:text-gray-200"
+                      >{{ totalStockOut }}</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center gap-1"
+                    :class="
+                      stockOutPercentage >= 0
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    "
+                  >
+                    <Icon name="uil:arrow-up" v-if="stockOutPercentage >= 0" />
+                    <Icon name="uil:arrow-down" v-else />
+                    <span class="text-sm"
+                      >{{ stockOutPercentage >= 0 ? "+" : "-"
+                      }}{{ stockOutPercentage }}%</span
+                    >
+                  </div>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-haze-100">
+                  Total Stock Out
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <ChartSplineArea
+            v-if="!fetchChartDataLoading && stockInData && stockOutData"
+            :key="stockInData"
+            class="w-[500px] h-[300px]"
+            :series="[stockInData, stockOutData]"
+            :x-axis-variables="xAxisVariables"
+          />
+        </div>
       </div>
 
       <!-- Traffic Chart -->
+      <!-- Chart Skeleton Loader -->
+      <div v-if="fetchChartDataLoading" class="w-full h-full col-span-4">
+        <SkeletonLoadingAreaChart />
+      </div>
       <div
-        class="col-span-4 bg-white dark:bg-primary-dark-900 rounded-3xl"
-      ></div>
+        v-else-if="!showTrafficChart"
+        class="flex items-center justify-center w-full h-full col-span-4 p-6 text-center bg-white rounded-lg shadow-md dark:bg-primary-dark-900"
+      >
+        <div>
+          <div class="">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-12 h-12 mx-auto text-gray-500 dark:text-haze-100"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 17v-2a4 4 0 100-8 4 4 0 100 8v2m0 0h6m-6 0v2m0-6h6m-6 0v-2m0 0h6"
+              />
+            </svg>
+            <h2
+              class="mt-4 text-lg font-semibold text-gray-700 dark:text-haze-100"
+            >
+              No Data Available
+            </h2>
+            <p class="mt-2 text-gray-600 dark:text-haze-100">
+              There is currently no data to display in the chart.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-span-4 px-10 pt-6 bg-white dark:bg-primary-dark-900 rounded-3xl"
+        v-else
+      >
+        <h1 class="text-xl font-semibold dark:text-white">Daily Visitors</h1>
+        <Chart-StackedColumn
+          :key="dailyVisit"
+          v-if="!fetchChartDataLoading && dailyVisit"
+          :series="dailyVisit"
+          :x-axis-variables="xAxisVariables"
+          :colors="['#5847e4']"
+        />
+      </div>
 
       <!-- About Me -->
       <div
         class="box-content flex flex-col items-center col-span-2 gap-3 px-2 py-5 bg-white dark:bg-primary-dark-900 rounded-3xl"
+        v-if="!fetchPharmaciesLoading"
       >
         <img
           :src="pharmacy?.logo_url || '/images/temp/pharmacy.jpg'"
@@ -236,21 +401,30 @@ const ratingValue = computed(() => {
           />
         </div>
       </div>
+
+      <!-- About Me Skeleton Loader -->
+      <div v-else class="w-full h-full col-span-2">
+        <SkeletonLoadingAboutMe />
+      </div>
     </div>
 
     <!-- Tables -->
     <div class="grid grid-cols-2 gap-10 mt-5">
-      <div>
+      <div class="col-span-2">
+        <DashboardMostSearchedMedicines></DashboardMostSearchedMedicines>
+      </div>
+      <!-- <div v-if="topSearchedPlaceItems.length > 0">
         <P-Table
           :headers="topSearchedPlaceHeader"
           :items="topSearchedPlaceItems"
           :loading="false"
+          :sort="[]"
           supporter-class="overflow-hidden bg-white dark:!bg-primary-dark-900 rounded-3xl border-0"
           row-head-style="text-gray-500 dark:text-gray-200 bg-gray-50 dark:bg-primary-dark-800"
           row-style="text-gray-500 dark:text-gray-200 rounded-none"
           fullRowClass="hover:bg-gray-50 dark:hover:bg-primary-dark-800 cursor-pointer"
         />
-      </div>
+      </div> -->
       <!-- <div>
         <P-Table
           :headers="topSearchedPlaceHeader"
@@ -262,9 +436,9 @@ const ratingValue = computed(() => {
           fullRowClass="hover:bg-gray-50 dark:hover:bg-primary-dark-800 cursor-pointer"
         />
       </div> -->
-      <div class="">
-        <DashboardMostSearchedMedicines></DashboardMostSearchedMedicines>
-      </div>
     </div>
+  </div>
+  <div v-else>
+    <P-Loader />
   </div>
 </template>

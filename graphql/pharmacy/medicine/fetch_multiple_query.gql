@@ -25,9 +25,18 @@ query GetMedicines(
       manufacturer
       side_effects
       uses
+      category {
+        name
+      }
     }
   }
   length: pharmacy_medicines_aggregate(where: $filter) {
+    aggregate {
+      count
+    }
+  }
+
+  expired: pharmacy_medicines_aggregate(where: { is_expired: { _eq: true } }) {
     aggregate {
       count
     }

@@ -25,6 +25,7 @@ mediaDone(({ data }) => {
     id: authStore.user?.id,
     set: {
       profile_picture_id: data.new_media?.id,
+      profile_url: data.new_media?.url,
     },
   });
 });
@@ -53,9 +54,9 @@ const {
 } = mutator(update);
 updateProfileDone((result) => {
   notify({
-    title: "You Successfully Update Your Information ",
-    description: result.data?.message,
-    type: "success",
+    title: "Profile Picture Updated",
+    description: "Your profile picture has been updated",
+    cardClass: "bg-green-200",
   });
   authStore.user.media.url = imageUrls.value;
 });
@@ -79,7 +80,11 @@ updateProfileError((error) => {
       <div
         class="relative flex-col items-center justify-center w-full h-full bg-white-100 p-"
       >
+        <div v-if="mediaLoading || updateProfileLoading" class="w-full h-full">
+          <P-Loader />
+        </div>
         <div
+          v-else
           class="relative flex-col items-center justify-center w-full h-full bg-white-100 p-"
         >
           <div>

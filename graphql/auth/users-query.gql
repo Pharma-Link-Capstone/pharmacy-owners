@@ -1,5 +1,15 @@
-query GetUser($filter: user_users_bool_exp) {
-  users: user_users(where: $filter) {
+query GetUser(
+  $filter: user_users_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [user_users_order_by!]
+) {
+  users: user_users(
+    where: $filter
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+  ) {
     status
     first_name
     last_name
@@ -10,5 +20,9 @@ query GetUser($filter: user_users_bool_exp) {
       gender_name
     }
     phone_number
+    media {
+      id
+      url
+    }
   }
 }

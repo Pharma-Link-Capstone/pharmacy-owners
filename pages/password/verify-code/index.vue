@@ -18,7 +18,7 @@ const onSubmit = handleSubmit(() => {
     >
       <img
         class="object-contain w-[70px] pl-2 pt-6 h-auto"
-        src="/images/logo.svg"
+        src="/images/pharmalink-logo.png"
         alt="Your Company"
       />
     </div>
@@ -68,7 +68,7 @@ const onSubmit = handleSubmit(() => {
       </div>
       <div>
         <img
-          src="/images/login.png"
+          src="/images/lock.png"
           class="object-cover max-h-[700px] pb-6"
           alt="lock image"
         />

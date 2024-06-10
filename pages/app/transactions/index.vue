@@ -23,27 +23,27 @@ const analytics = computed(() => [
   {
     title: "Transactions",
     value: pharmacy.value?.medicines_count?.aggregate?.count || 0,
-    icon: "healthicons:medicines-outline",
+    icon: "hugeicons:transaction",
   },
   {
     title: "Total Quantity",
     value: pharmacy.value?.summary?.total_reviews || 0,
-    icon: "material-symbols:reviews",
+    icon: "fluent-mdl2:quantity",
   },
   {
     title: "Total Price",
     value: 0,
-    icon: "wpf:view-file",
+    icon: "uil:pricetag-alt",
   },
   {
     title: "Stock Out",
-    value: pharmacy.value?.summary?.view_count || 0,
-    icon: "iconoir:eye",
+    value: pharmacy.value?.stockOut?.aggregate?.count || 0,
+    icon: "iconoir:home-sale",
   },
   {
     title: "Stock In",
-    value: 0,
-    icon: "carbon:touch-interaction",
+    value: pharmacy.value?.stockIn?.aggregate?.count,
+    icon: "f7:purchased-circle",
   },
 ]);
 
@@ -51,25 +51,25 @@ const perPageOptions = ref([5, 10, 20, 30]);
 
 const headers = [
   {
-    text: "Medicines",
-    value: "medicines",
+    text: "Type",
+    value: "type",
   },
   {
     text: "Total Quantity",
     value: "quantity",
   },
-  {
-    text: "Total Price",
-    value: "price",
-  },
+  // {
+  //   text: "Total Price",
+  //   value: "price",
+  // },
   {
     text: "Created At",
     value: "created_at",
   },
-  {
-    text: "Actions",
-    value: "actions",
-  },
+  // {
+  //   text: "Actions",
+  //   value: "actions",
+  // },
 ];
 
 const openModal = ref(false);
@@ -166,6 +166,16 @@ const openStockOutModal = ref(false);
 const sum = (arr) => {
   return arr.reduce((a, b) => a + b, 0);
 };
+
+useHead({
+  title: "Transactions | Pharmalink",
+  meta: [
+    {
+      name: "description",
+      content: "Dashboard",
+    },
+  ],
+});
 </script>
 <template>
   <PharmacyInventoryStockOutModal
@@ -223,9 +233,12 @@ const sum = (arr) => {
           </div>
         </div>
 
-        <div v-if="isPharmacist" class="flex items-center gap-3">
+        <div
+          v-if="isPharmacist && pharmacy.status == 'ACTIVE'"
+          class="flex items-center gap-3"
+        >
           <button
-            class="dark:bg-primary-dark-700 px-3 py-1.5 rounded-md dark:text-gray-100"
+            class="dark:bg-primary-dark-700 btn-primary-outline px-3 py-1.5 rounded-md dark:text-gray-100"
             @click="openStockOutModal = true"
           >
             <icon name="hugeicons:package-out-of-stock" class="text-lg" />
@@ -251,7 +264,7 @@ const sum = (arr) => {
           "
         >
           <!-- Medicines -->
-          <template #medicines="{ item }">
+          <!-- <template #medicines="{ item }">
             <div class="flex items-center gap-2 dark:text-white">
               <div
                 v-for="(
@@ -274,6 +287,13 @@ const sum = (arr) => {
                 </div>
               </div>
             </div>
+          </template> -->
+
+          <!-- Type -->
+          <template #type="{ item }">
+            <p class="dark:text-white">
+              {{ item.transaction_type == "IN" ? "Stock In" : "Stock Out" }}
+            </p>
           </template>
 
           <!-- Total Quantity -->
@@ -284,15 +304,22 @@ const sum = (arr) => {
           </template>
 
           <!-- Total Price -->
-          <template #price="{ item }">
+          <!-- <template #price="{ item }">
             <div class="dark:text-white">
               {{
                 sum(item?.transaction_medicines?.map((m) => m?.medicine?.price))
               }}
             </div>
+          </template> -->
+
+          <!-- Created At -->
+          <template #created_at="{ item }">
+            <p class="dark:text-white">
+              {{ format(parseISO(item?.created_at), " dd MMM, yyyy") }}
+            </p>
           </template>
           <!-- Actions -->
-          <template #actions="{ item }">
+          <!-- <template #actions="{ item }">
             <Menu>
               <MenuButton class="relative" @click="$event.stopPropagation()">
                 <Icon
@@ -336,7 +363,7 @@ const sum = (arr) => {
                 </MenuItem>
               </MenuItems>
             </Menu>
-          </template>
+          </template> -->
         </P-Table>
       </div>
     </div>
@@ -347,7 +374,7 @@ const sum = (arr) => {
         v-model="page"
         :total-data="totalItems"
         :items-per-page="limit"
-        v-if="medicines?.length > 0"
+        v-if="transactions?.length > 0"
       />
     </div>
   </div>

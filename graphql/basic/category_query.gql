@@ -1,0 +1,11 @@
+query GetCategories(
+  $filter: categories_bool_exp
+  $limit: Int
+  $offset: Int
+  $order: [categories_order_by!]
+) {
+  categories(where: $filter, limit: $limit, offset: $offset, order_by: $order) {
+    id
+    name
+  }
+}

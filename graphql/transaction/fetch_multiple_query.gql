@@ -12,6 +12,7 @@ query GetPharmacies(
   ) {
     id
     reason
+    transaction_type
     transaction_medicines: transaction_medicnies {
       id
       quantity

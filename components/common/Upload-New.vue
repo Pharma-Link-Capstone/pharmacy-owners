@@ -106,7 +106,7 @@ function uploadImage(image) {
 
 <template>
   <P-Modal
-    body-class="w-[550px] !p-6"
+    body-class="w-[550px] !p-6 dark:bg-primary-dark-900 dark:!text-white"
     v-model="showUploadImageModal"
     :show-close="true"
   >

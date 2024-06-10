@@ -35,19 +35,19 @@ const alternativePhoneNumber = computed({
 });
 
 const region = computed({
-  get: () => props.modelValue.region || props.modelValue?.area?.city?.region_id,
+  get: () => props.modelValue.region || props.modelValue?.area?.city?.region,
   set: (value) => {
     emit("update:modelValue", { ...props.modelValue, region: value });
   },
 });
 const city = computed({
-  get: () => props.modelValue.city || props.modelValue?.area?.city_id,
+  get: () => props.modelValue.city || props.modelValue?.area?.city,
   set: (value) => {
     emit("update:modelValue", { ...props.modelValue, city: value });
   },
 });
 const area = computed({
-  get: () => props.modelValue.area || props.modelValue?.area_id,
+  get: () => props.modelValue.area || props.modelValue?.area,
   set: (value) => {
     emit("update:modelValue", { ...props.modelValue, area: value });
   },
@@ -211,6 +211,7 @@ const onSubmit = handleSubmit(() => {
           v-model="region"
           :items="regionOptions"
           name="region"
+          :return-object="true"
           header-class="!bg-haze-50 !h-12 !rounded-2xl !border-0 !shadow-none"
           placeholder="Select a region"
           rules="required"
@@ -236,6 +237,7 @@ const onSubmit = handleSubmit(() => {
           v-model="city"
           :items="cityOptions"
           name="city"
+          :return-object="true"
           placeholder="Select a city"
           header-class="!bg-haze-50 !h-12 !rounded-2xl !border-0 !shadow-none"
           rules="required"
@@ -259,6 +261,7 @@ const onSubmit = handleSubmit(() => {
           v-model="area"
           :items="areaOptions"
           name="area"
+          :return-object="true"
           placeholder="Select an area"
           header-class="!bg-haze-50 !h-12 !rounded-2xl !border-0 !shadow-none"
           rules="required"

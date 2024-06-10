@@ -6,13 +6,14 @@ import mutator from "./apollo/mutator";
 /* --------------------------- Register device On Database--------------------------- */
 const { mutate, onError, loading, onDone } = mutator(registerDeviceMutation);
 onDone((result) => {
-  console.log("Device Is Registered");
+  localStorage.setItem("dt_set", true);
 });
 onError((error) => {
   console.warn("Already Device Registered");
 });
 
 export default function () {
+  const isRegistered = computed(() => localStorage.getItem("dt_set"));
   const { $messaging } = useNuxtApp();
   const registerDevice = async () => {
     const permission = await testNotificationPermission();
@@ -25,6 +26,7 @@ export default function () {
         vapidKey: import.meta.env.VITE_FIREBASE_VAP_ID,
       });
 
+      if (isRegistered.value) return;
       // send token to server
       mutate({
         deviceToken: token,

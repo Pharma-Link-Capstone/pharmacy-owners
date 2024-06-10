@@ -2,6 +2,19 @@
 definePageMeta({
   layout: "app",
 });
+
+useHead({
+  title: "Settings | Pharmalink",
+  meta: [
+    {
+      name: "description",
+      content: "This is a settings page for the pharmacy",
+    },
+  ],
+  bodyAttrs: {
+    class: "test",
+  },
+});
 </script>
 <template>
   <div class="flex flex-col py-8 gap-y-8">

@@ -127,7 +127,7 @@ onResult(({ data }) => {
           class="flex items-center mb-6 space-x-1 text-gray-950"
         >
           <Icon name="ion:chevron-back" class="text-2xl" />
-          <span>Back to login</span>
+          <span>Goto to login</span>
         </button>
 
         <div

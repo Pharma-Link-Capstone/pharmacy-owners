@@ -162,7 +162,7 @@ function getFileType(file) {
       />
     </ClientOnly>
 
-    <div class="flex flex-col items-center justify-center">
+    <div class="flex flex-col items-center justify-center w-full">
       <div
         class="w-full cursor-pointer"
         v-if="!uploadedFiles.length"
@@ -184,7 +184,7 @@ function getFileType(file) {
 
       <div
         v-else
-        class="flex flex-col items-center justify-center w-full py-2 border-2 border-dashed rounded-md cursor-pointer h-fit"
+        class="flex flex-col min-w-[500px] items-center justify-center w-full py-2 border-2 border-dashed rounded-md cursor-pointer h-fit"
       >
         <Suspense>
           <template #default>
@@ -197,7 +197,7 @@ function getFileType(file) {
                 class="flex items-center justify-between w-full p-2"
                 @click="makeThumbnail(i)"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center w-full gap-3">
                   <video
                     v-if="getFileType(i) == 'video'"
                     class="w-[70px] h-[70px] rounded-sm object-cover"
@@ -205,12 +205,15 @@ function getFileType(file) {
                     autoplay
                     controls
                   ></video>
-                  <object
-                    :data="i"
-                    class="object-cover w-[600px]"
-                    type="application/pdf"
-                    v-else-if="getFileType(i) == 'pdf'"
-                  />
+                  <div v-else-if="getFileType(i) == 'pdf'">
+                    <ClientOnly>
+                      <object
+                        :data="i"
+                        type="application/pdf"
+                        class="w-[500px] h-[200px] rounded-sm object-cover"
+                      ></object>
+                    </ClientOnly>
+                  </div>
                   <img
                     v-else
                     :src="i"
