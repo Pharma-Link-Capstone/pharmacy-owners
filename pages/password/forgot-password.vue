@@ -7,6 +7,8 @@ const { handleSubmit } = useForm();
 
 const { notify } = useNotify();
 
+const email = ref("");
+
 const {
   mutate: resetPassword,
   onDone: onResetPasswordDone,
@@ -80,6 +82,7 @@ definePageMeta({
               class=""
               name="email"
               rules="required|email"
+              v-model="email"
             >
               <template #leading>
                 <Icon

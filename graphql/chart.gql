@@ -1,0 +1,48 @@
+query Chart($filter: uuid!) {
+  stockIn: pharmacy_in_transactions_last_7_days {
+    out_quantity
+    pharmacy_id
+    transaction_date
+  }
+  stockOut: pharmacy_out_transactions_last_7_days {
+    out_quantity
+    pharmacy_id
+    transaction_date
+  }
+
+  dailyVisitsInWeek: pharmacy_visit_counts {
+    pharmacy_id
+    visit_count
+    visit_date
+  }
+
+  dailyVisitsInMonth: pharmacy_visit_counts_30_days {
+    pharmacy_id
+    visit_count
+    visit_date
+  }
+
+  dailyVisitsInYear: pharmacy_visit_counts_12_months {
+    pharmacy_id
+    visit_count
+    visit_date
+  }
+
+  stockInPercent: transaction_in_percentage_per_pharmacy(
+    where: { pharmacy_id: { _eq: $filter } }
+  ) {
+    month: percentage_difference_last_30_days
+    week: percentage_difference_last_7_days
+    year: percentage_difference_last_year
+    pharmacy_id
+  }
+
+  stockOutPercent: transaction_out_percentage_per_pharmacy(
+    where: { pharmacy_id: { _eq: $filter } }
+  ) {
+    month: percentage_difference_last_30_days
+    week: percentage_difference_last_7_days
+    year: percentage_difference_last_year
+    pharmacy_id
+  }
+}

@@ -41,7 +41,9 @@ const onSubmit = (e) => {
     accept="application/pdf,image/*"
   /> -->
   <div>
-    <div class="flex flex-col items-center justify-center gap-3 text-gray-600">
+    <div
+      class="flex flex-col items-center justify-center w-full gap-3 text-gray-600"
+    >
       <!-- <img
         src="/images/illustrations/upload.svg"
         alt=""

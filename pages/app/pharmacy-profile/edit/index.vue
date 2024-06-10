@@ -32,18 +32,23 @@ onFetchPharmacyResult(({ data }) => {
   pharmacy.value = {
     ...data?.pharmacy,
     logo_url: data?.pharmacy?.logo_url ? [data?.pharmacy?.logo_url] : [],
+    cover_image: data?.pharmacy?.cover_image
+      ? [data?.pharmacy?.cover_image]
+      : [],
     license_url: data?.pharmacy?.license_url
       ? [data?.pharmacy?.license_url]
       : [],
-    area: data?.pharmacy?.location?.area?.id,
+
+    area: data?.pharmacy?.location?.area,
+
     location: {
       position: {
         lat: data?.pharmacy?.location?.location?.coordinates[1],
         lng: data?.pharmacy?.location?.location?.coordinates[0],
       },
     },
-    region: data?.pharmacy?.location?.area?.city?.region?.id,
-    city: data?.pharmacy?.location?.area?.city?.id,
+    region: data?.pharmacy?.location?.area?.city?.region,
+    city: data?.pharmacy?.location?.area?.city,
     socials: data?.pharmacy?.pharmacy_social_medias?.map((social) => ({
       id: social?.social_media?.id,
       url: social?.url,
@@ -106,7 +111,7 @@ const onSubmit = () => {
       license_url: pharmacy.value?.license_url[0],
       location: {
         data: {
-          area_id: pharmacy.value?.area,
+          area_id: pharmacy.value?.area?.id,
           location: {
             type: "Point",
             coordinates: [
@@ -117,6 +122,7 @@ const onSubmit = () => {
         },
       },
       logo_url: pharmacy.value?.logo_url[0],
+      cover_image: pharmacy.value?.cover_image[0],
       name: pharmacy.value?.name,
       description: pharmacy.value?.description,
       phone_number_1: pharmacy.value?.phoneNumber,
@@ -192,7 +198,7 @@ const handleSubmission = () => {
         </div>
 
         <!-- Form -->
-        <div class="mt-10">
+        <div class="mt-10" v-if="!fetchPharmacyLoading">
           <Pharmacy-Form-BasicInfo
             v-model="pharmacy"
             v-if="currentStepIndex == 0"
@@ -220,6 +226,10 @@ const handleSubmission = () => {
             "
             v-model="pharmacy"
           />
+        </div>
+
+        <div class="mt-10 h-full min-h-[300px] w-full" v-else>
+          <P-Loader />
         </div>
       </div>
     </div>

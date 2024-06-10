@@ -47,6 +47,11 @@ const medicineFiler = computed(() => {
           },
         },
       },
+      {
+        expire_at: {
+          _gte: new Date().toISOString(),
+        },
+      },
     ],
   };
 });
@@ -82,11 +87,14 @@ const handleInventoryAdd = handleSubmit(() => {
   addedMedicines.value.push({
     medicine: medicine.value,
     quantity: quantity.value,
-    unitPrice: unitPrice.value,
-    expiryDate: expiryDate.value,
+    unitPrice: medicine?.value?.price,
+    expiryDate: medicine.value?.expire_at,
   });
 
-  resetForm();
+  medicine.value = null;
+  quantity.value = "";
+  unitPrice.value = "";
+  expiryDate.value = "";
 });
 
 /*----------------------Handle Submission----------------------*/
@@ -140,6 +148,22 @@ onInsertMedicinesDone(() => {
 
   emit("success");
 });
+
+/*----------------------Handle Remove----------------------*/
+const removeItem = (index) => {
+  addedMedicines.value = addedMedicines.value.filter((item, i) => i !== index);
+};
+
+/*----------------------Handle Edit----------------------*/
+const handleEditItem = (index) => {
+  const item = addedMedicines.value[index];
+  medicine.value = item.medicine;
+  quantity.value = item.quantity;
+  unitPrice.value = item.unitPrice;
+  expiryDate.value = item.expiryDate;
+
+  removeItem(index);
+};
 </script>
 
 <template>
@@ -150,7 +174,7 @@ onInsertMedicinesDone(() => {
   >
     <template #header>
       <div class="flex items-center justify-between">
-        <h1 class="text-3xl">Add Inventory</h1>
+        <h1 class="text-3xl">Stock out</h1>
         <button class="btn-primary" @click="openModal = false">Close</button>
       </div>
     </template>
@@ -201,7 +225,7 @@ onInsertMedicinesDone(() => {
                             {{ item?.medicine?.name }}
                           </h1>
                           <p class="text-sm dark:text-gray-100">
-                            {{ item?.medicine?.category }}
+                            {{ item?.medicine?.category?.name }}
                           </p>
                         </div>
                       </div>
@@ -297,19 +321,33 @@ onInsertMedicinesDone(() => {
                       class="w-full p-5 bg-haze-50 dark:bg-primary-dark-800 rounded-2xl"
                     >
                       <div>
-                        <div class="flex items-center gap-5">
-                          <img
-                            :src="medicine?.medicine?.medicine?.image_url"
-                            alt="medicine"
-                            class="object-cover rounded-full w-14 h-14"
-                          />
-                          <div>
-                            <h1 class="text-lg">
-                              {{ medicine.medicine?.medicine?.name }}
-                            </h1>
-                            <p class="text-sm">
-                              {{ medicine.medicine?.medicine?.category }}
-                            </p>
+                        <div class="flex items-center justify-between gap-5">
+                          <div class="flex items-center gap-3">
+                            <img
+                              :src="medicine?.medicine?.medicine?.image_url"
+                              alt="medicine"
+                              class="object-cover rounded-full w-14 h-14"
+                            />
+                            <div>
+                              <h1 class="text-lg">
+                                {{ medicine.medicine?.medicine?.name }}
+                              </h1>
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <button
+                              @click="removeItem(index)"
+                              class="text-xl text-red-600"
+                            >
+                              <Icon name="tabler:trash" />
+                            </button>
+
+                            <button
+                              class="text-xl text-primary-600"
+                              @click="handleEditItem(index)"
+                            >
+                              <Icon name="tabler:pencil" />
+                            </button>
                           </div>
                         </div>
 

@@ -77,7 +77,17 @@ const ratingValue = computed(() => {
     val += review.rating;
   });
 
-  return val / pharmacy.value?.reviews.length;
+  return val / pharmacy.value?.reviews?.length;
+});
+
+useHead({
+  title: "Pharmacy Profile | Pharmalink",
+  meta: [
+    { name: "description", content: "This is a profile page for the pharmacy" },
+  ],
+  bodyAttrs: {
+    class: "test",
+  },
 });
 </script>
 <template>
@@ -85,7 +95,7 @@ const ratingValue = computed(() => {
     <div class="relative overflow-visible">
       <div class="z-0">
         <img
-          src="/images/temp/cover.png"
+          :src="pharmacy?.cover_image || '/images/temp/cover.png'"
           alt=""
           class="object-cover w-full h-56 rounded-3xl"
         />
@@ -137,17 +147,20 @@ const ratingValue = computed(() => {
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-3 mr-10" v-if="isPharmacist">
+          <div
+            class="flex items-center gap-3 mr-10"
+            v-if="isPharmacist && pharmacy.status == 'ACTIVE'"
+          >
             <nuxt-link
               :to="`/app/pharmacy-profile/edit`"
               class="!w-36 !rounded-3xl btn-primary gap-3 flex justify-center"
             >
               <icon name="uil:pen" class="text-xl" /> Edit
             </nuxt-link>
-            <button class="!w-fit !rounded-3xl btn-primary-outline">
+            <!-- <button class="!w-fit !rounded-3xl btn-primary-outline">
               <icon name="material-symbols:close" class="text-xl" /> Close
               Pharmacy
-            </button>
+            </button> -->
           </div>
         </div>
         <div class="w-full h-44" v-else>
@@ -176,7 +189,7 @@ const ratingValue = computed(() => {
         <template #overview>
           <div class="mt-5" v-if="!fetchPharmacyLoading">
             <div class="grid grid-cols-3 gap-5 divide-x">
-              <div class="col-span-2">
+              <div class="col-span-3">
                 <div>
                   <h1 class="text-xl font-semibold dark:text-white">About</h1>
                   <p class="mt-3 text-haze-800 dark:text-white">
@@ -221,7 +234,7 @@ const ratingValue = computed(() => {
                         </p>
                         <p class="font-medium dark:text-white">
                           {{
-                            pharmacy.location.area?.city?.region.name ||
+                            pharmacy.location?.area?.city?.region.name ||
                             "Addis Ababa"
                           }}
                         </p>
@@ -232,7 +245,7 @@ const ratingValue = computed(() => {
                         </p>
                         <p class="font-medium dark:text-white">
                           {{
-                            pharmacy.location.area?.city.name || "Addis Ababa"
+                            pharmacy.location?.area?.city.name || "Addis Ababa"
                           }}
                         </p>
                       </div>
@@ -241,7 +254,7 @@ const ratingValue = computed(() => {
                           Area/Kebele
                         </p>
                         <p class="font-medium dark:text-white">
-                          {{ pharmacy.location.area?.name || "Addis Ababa" }}
+                          {{ pharmacy.location?.area?.name || "Addis Ababa" }}
                         </p>
                       </div>
                     </div>
@@ -251,7 +264,7 @@ const ratingValue = computed(() => {
                   </div>
                 </div>
               </div>
-              <div class="col-span-1 pl-5">
+              <!-- <div class="col-span-1 pl-5">
                 <div>
                   <h1 class="text-xl font-semibold dark:text-white">
                     Top Selling Medicines
@@ -261,7 +274,7 @@ const ratingValue = computed(() => {
                     <P-NoItems />
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
           <div v-else class="h-[300px]">
@@ -270,7 +283,7 @@ const ratingValue = computed(() => {
         </template>
 
         <template #reviews>
-          <div class="pb-5">
+          <div class="pb-5 min-h-[300px]">
             <div class="mt-5" v-if="!fetchPharmacyLoading">
               <div v-if="pharmacy.reviews?.length > 0">
                 <div v-for="(review, index) in pharmacy?.reviews" :key="index">

@@ -33,7 +33,9 @@ const onSubmit = handleSubmit((values) => {
       birth_date: new Date(userData.value.birth_date)?.toISOString(),
       password: userData.value.password,
       registered_with: "",
-      redirect_url: "http://localhost:3000/login",
+      redirect_url:
+        "http://localhost:3000/verify-email/success?email=" +
+        userData.value.email,
     },
   });
 });

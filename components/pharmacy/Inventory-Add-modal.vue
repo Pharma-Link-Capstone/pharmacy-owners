@@ -101,8 +101,22 @@ const onSubmit = () => {
     };
   });
 
+  const transactionObject = {
+    phramacy_id: PhID.value,
+    transaction_type: "IN",
+    transaction_medicnies: {
+      data: addedMedicines.value.map((item) => {
+        return {
+          medicine_id: item?.medicine?.id,
+          quantity: item.quantity,
+        };
+      }),
+    },
+  };
+
   insertMedicines({
     objects: data,
+    transactionObject,
   });
 };
 

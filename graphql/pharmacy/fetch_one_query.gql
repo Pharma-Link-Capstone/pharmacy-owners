@@ -5,6 +5,7 @@ query GetPharmacy($id: uuid!) {
     is_verified
     is_open
     logo_url
+    cover_image
     license_url
     description
     medicines_count: pharmacy_medicines_aggregate {
@@ -69,6 +70,25 @@ query GetPharmacy($id: uuid!) {
         media {
           url
         }
+      }
+    }
+    expired: pharmacy_medicines_aggregate(
+      where: { is_expired: { _eq: true } }
+    ) {
+      aggregate {
+        count
+      }
+    }
+    stockIn: transactions_aggregate(where: { transaction_type: { _eq: IN } }) {
+      aggregate {
+        count
+      }
+    }
+    stockOut: transactions_aggregate(
+      where: { transaction_type: { _eq: OUT } }
+    ) {
+      aggregate {
+        count
       }
     }
   }

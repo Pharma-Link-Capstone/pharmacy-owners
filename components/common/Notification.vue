@@ -43,7 +43,7 @@ registerDevice();
 /* --------------------------- Fetch Notifications --------------------------- */
 const notifications = ref([]);
 const role = computed(() => {
-  if (userRoles.value?.includes("pharmacist]")) {
+  if (userRoles?.includes("pharmacist]")) {
     return "pharmacist";
   } else {
     return "user";
@@ -54,6 +54,7 @@ const {
   onResult,
   onError,
   refetch: notificationRefetch,
+  loading: notificationLoading,
 } = lists(notificationListQUery, {
   filter,
   role,
@@ -88,6 +89,10 @@ onError((error) => {});
 const handleSee = (id) => {
   seeNotification();
 };
+
+onUnmounted(() => {
+  seeNotification();
+});
 
 /**--------------------Delete notifications------------ */
 
@@ -157,7 +162,7 @@ const isSeen = computed(() => {
                   leave-to="opacity-0"
                 >
                   <div
-                    class="absolute flex pt-4 pr-2 -ml-8 left-5 top-64 xl:top-96 sm:-ml-10 sm:pr-4"
+                    class="absolute flex pt-4 pr-2 -ml-8 -translate-y-1/2 left-5 top-1/2 sm:-ml-10 sm:pr-4"
                   >
                     <button
                       type="button"
@@ -167,7 +172,7 @@ const isSeen = computed(() => {
                       <span class="absolute -inset-1.5" />
                       <span class="sr-only">Close panel</span>
                       <Icon
-                        name="ph:x"
+                        name="teenyicons:right-outline"
                         color="white"
                         width="20"
                         height="20"
@@ -177,51 +182,59 @@ const isSeen = computed(() => {
                   </div>
                 </TransitionChild>
                 <div
-                  class="w-[24rem] h-screen py-4 px-2 overflow-y-auto bg-white"
+                  class="w-[24rem] h-screen py-4 px-2 overflow-y-auto bg-white dark:bg-primary-dark-900"
                 >
-                  <div class="flex items-center justify-between px-2 mb-4">
-                    <h1
-                      class="font-medium text-lg leading-[35px] text-primary-600"
-                    >
-                      Notifications
-                    </h1>
-
-                    <button
-                      class="disabled:text-gray-300"
-                      :disabled="!isSeen"
-                      @click="handleSee"
-                    >
-                      Mark all as read
-                    </button>
-                  </div>
                   <div
-                    v-if="notifications.length > 0"
-                    class="divide-y-2 divide-gray-100"
+                    class="w-full h-full"
+                    v-if="seenLoading || deleteLoading || notificationLoading"
                   >
-                    <CommonNotify
-                      v-for="(userNotification, index) in notifications"
-                      :user-notification="userNotification"
-                      :key="index"
-                      @delete-notification="handleDelete"
-                    ></CommonNotify>
+                    <P-Loader />
                   </div>
-                  <div
-                    v-if="notifications.length < 4"
-                    class="flex-col justify-center w-full pt-64 my-auto"
-                  >
-                    <div class="flex justify-center m-auto my-auto">
-                      <Icon
-                        name="basil:notification-on-outline"
-                        class="item-center h-[100px] w-[100px] text-primary-600"
-                      >
-                      </Icon>
-                    </div>
-                    <div class="flex justify-center m-auto my-auto">
+                  <div v-else>
+                    <div class="flex items-center justify-between px-2 mb-4">
                       <h1
-                        class="item-center text-primary-600 text-md font-poppins"
+                        class="font-medium text-lg leading-[35px] text-primary-600"
                       >
-                        No More Notifications
+                        Notifications
                       </h1>
+
+                      <button
+                        class="disabled:text-gray-600"
+                        :disabled="!isSeen"
+                        @click="handleSee"
+                      >
+                        Mark all as read
+                      </button>
+                    </div>
+                    <div
+                      v-if="notifications.length > 0"
+                      class="divide-y-2 divide-gray-100 dark:divide-primary-dark-700"
+                    >
+                      <CommonNotify
+                        v-for="(userNotification, index) in notifications"
+                        :user-notification="userNotification"
+                        :key="index"
+                        @delete-notification="handleDelete"
+                      ></CommonNotify>
+                    </div>
+                    <div
+                      v-if="notifications.length < 4"
+                      class="flex-col justify-center w-full pt-64 my-auto"
+                    >
+                      <div class="flex justify-center m-auto my-auto">
+                        <Icon
+                          name="basil:notification-on-outline"
+                          class="item-center h-[100px] w-[100px] text-primary-600"
+                        >
+                        </Icon>
+                      </div>
+                      <div class="flex justify-center m-auto my-auto">
+                        <h1
+                          class="item-center text-primary-600 dark:text-white text-md font-poppins"
+                        >
+                          No More Notifications
+                        </h1>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,12 @@
-mutation InsertMedicines($objects: [pharmacy_medicines_insert_input!]!) {
+mutation InsertMedicines(
+  $objects: [pharmacy_medicines_insert_input!]!
+  $transactionObject: transactions_insert_input!
+) {
   insert_pharmacy_medicines(objects: $objects) {
     affected_rows
+  }
+
+  insert_transactions_one(object: $transactionObject) {
+    id
   }
 }

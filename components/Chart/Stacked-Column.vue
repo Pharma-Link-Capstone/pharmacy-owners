@@ -1,4 +1,5 @@
 <script setup>
+import VueApexCharts from "vue3-apexcharts";
 import VueApexChart from "vue3-apexcharts";
 const props = defineProps({
   series: {
@@ -28,6 +29,10 @@ const chartOptions = ref({
     zoom: {
       enabled: true,
     },
+    background: "transparent",
+  },
+  grid: {
+    show: false,
   },
   dataLabels: {
     enabled: true,
@@ -68,7 +73,7 @@ const chartOptions = ref({
     },
   },
   xaxis: {
-    type: "datetime",
+    type: "category",
     categories: props.xAxisVariables,
   },
   yaxis: {
@@ -98,12 +103,12 @@ const chartOptions = ref({
 });
 </script>
 <template>
-  <div class="w-full">
+  <div class="w-full h-full">
     <VueApexChart
       type="bar"
       :options="chartOptions"
       :series="series"
-      class="w-full"
+      class="w-full min-h-[100px] h-full"
     ></VueApexChart>
   </div>
 </template>

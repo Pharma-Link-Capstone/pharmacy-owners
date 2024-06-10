@@ -38,6 +38,7 @@ const enabled = computed(() => PhID.value != null);
 
 const pharmacy = ref({
   logo_url: [],
+  cover_image: [],
 });
 
 const {
@@ -50,10 +51,13 @@ onFetchPharmacyResult(({ data }) => {
   pharmacy.value = {
     ...data?.pharmacy,
     logo_url: data?.pharmacy?.logo_url ? [data?.pharmacy?.logo_url] : [],
+    cover_image: data?.pharmacy?.cover_image
+      ? [data?.pharmacy?.cover_image]
+      : [],
     license_url: data?.pharmacy?.license_url
       ? [data?.pharmacy?.license_url]
       : [],
-    area: data?.pharmacy?.location?.area?.id,
+    area: data?.pharmacy?.location?.area,
     location: {
       position: {
         lat: data?.pharmacy?.location?.location?.coordinates[1],
@@ -61,8 +65,8 @@ onFetchPharmacyResult(({ data }) => {
       },
     },
     description: data?.pharmacy?.description,
-    region: data?.pharmacy?.location?.area?.city?.region?.id,
-    city: data?.pharmacy?.location?.area?.city?.id,
+    region: data?.pharmacy?.location?.area?.city?.region,
+    city: data?.pharmacy?.location?.area?.city,
     socials: data?.pharmacy?.pharmacy_social_medias?.map((social) => ({
       id: social?.social_media?.id,
       url: social?.url,
@@ -126,7 +130,7 @@ const onInsertPharmacy = () => {
       license_url: pharmacy.value?.license_url[0],
       location: {
         data: {
-          area_id: pharmacy.value?.area,
+          area_id: pharmacy.value?.area?.id,
           location: {
             type: "Point",
             coordinates: [
@@ -137,6 +141,7 @@ const onInsertPharmacy = () => {
         },
       },
       logo_url: pharmacy.value?.logo_url[0],
+      cover_image: pharmacy.value?.cover_image[0],
       name: pharmacy.value?.name,
       description: pharmacy.value?.description,
       phone_number_1: pharmacy.value?.phoneNumber,
@@ -182,7 +187,9 @@ onInsertPlaceDone(({ data }) => {
 </script>
 <template>
   <div class="flex items-center justify-center w-full h-full">
-    <div class="w-full max-w-[950px] mt-20 shadow border rounded-2xl py-5">
+    <div
+      class="w-full max-w-[950px] mt-20 shadow border mb-10 rounded-2xl py-5"
+    >
       <div class="flex flex-col items-center gap-3">
         <img src="/images/pharmalink-logo.png" alt="" />
         <h1 class="text-3xl">Set Up Profile</h1>
@@ -222,15 +229,15 @@ onInsertPlaceDone(({ data }) => {
           </div>
         </div>
 
-        <!-- FOrm -->
-        <div class="mt-10">
+        <!-- Form -->
+        <div class="mt-10" v-if="!fetchPharmacyLoading">
           <Pharmacy-Form-BasicInfo
             v-model="pharmacy"
             v-if="currentStepIndex == 0"
             @next="next"
           />
           <Pharmacy-Form-ContactInfo
-            v-if="currentStepIndex == 1"
+            v-else-if="currentStepIndex == 1"
             @next="next"
             @prev="
               () =>
@@ -241,7 +248,7 @@ onInsertPlaceDone(({ data }) => {
             v-model="pharmacy"
           />
           <Pharmacy-Form-License
-            v-if="currentStepIndex == 2"
+            v-else-if="currentStepIndex == 2"
             @finish="onSubmit"
             @prev="
               () =>
@@ -251,6 +258,9 @@ onInsertPlaceDone(({ data }) => {
             "
             v-model="pharmacy"
           />
+        </div>
+        <div class="mt-10 h-full min-h-[300px] w-full" v-else>
+          <P-Loader />
         </div>
       </div>
     </div>

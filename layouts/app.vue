@@ -5,6 +5,9 @@ import lists from "~/composables/apollo/lists";
 
 import mutator from "~/composables/apollo/mutator";
 import { useAuthStore } from "~/stores/auth";
+import useNotify from "~/use/notify";
+
+const { notify } = useNotify();
 
 const {
   mutate: refreshToken,
@@ -12,11 +15,15 @@ const {
   onDone: onRefreshTokenDone,
 } = mutator(RefreshToken);
 
-const { userRoles, setToken, user, setUser } = useAuthStore();
+const router = useRouter();
+
+const { userRoles, setToken, user, setUser, setPhID } = useAuthStore();
 
 const { onLogin } = useApollo();
 
 const isPharmacist = computed(() => userRoles?.includes("pharmacist"));
+
+const isSuspended = ref(false);
 
 const showWarning = ref(true);
 
@@ -67,7 +74,23 @@ const {
 });
 
 onFetchPharmaciesResult(({ data }) => {
+  if (data?.pharmacies.length === 0) {
+    return router.push("/login");
+  }
+
+  if (data?.pharmacies[0]?.status == "SUSPENDED") {
+    isSuspended.value = true;
+    showWarning.value = true;
+    notify({
+      title: "Account Suspended",
+      description: "Your account has been suspended. Please contact the admin.",
+      cardClass: "bg-red-200",
+    });
+  }
+
   localStorage.setItem("PhID", data?.pharmacies[0]?.id);
+
+  setPhID(data?.pharmacies[0]?.id);
 });
 
 onFetchPharmaciesError((error) => {
@@ -92,12 +115,21 @@ onFetchPharmaciesError((error) => {
       <div class="p-5" v-if="!refreshTokenLoading && !fetchPharmaciesLoading">
         <p
           v-if="showWarning"
-          class="flex items-center justify-between gap-3 px-5 py-2 mb-5 text-yellow-500 bg-yellow-100 rounded-xl"
+          class="flex items-center justify-between gap-3 px-5 py-2 mb-5 rounded-xl"
+          :class="{
+            'bg-red-200 dark:bg-red-500': isSuspended,
+            'bg-yellow-200 dark:bg-yellow-500': !isPharmacist,
+          }"
         >
-          <span>
+          <span v-if="!isPharmacist">
             <icon name="material-symbols:warning" />
             Your pharmacy account is not yet activated. Please contact the admin
             to activate your account.
+          </span>
+
+          <span v-else-if="isSuspended">
+            <icon name="material-symbols:warning" />
+            Your pharmacy account has been suspended. Please contact the admin.
           </span>
           <button @click="showWarning = false" class="p-2 rounded-full">
             <icon name="material-symbols:close" />

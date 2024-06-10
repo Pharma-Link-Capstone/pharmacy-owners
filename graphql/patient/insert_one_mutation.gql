@@ -1,0 +1,5 @@
+mutation InsertPatients($object: patients_insert_input!) {
+  insert_patients_one(object: $object) {
+    id
+  }
+}

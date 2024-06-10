@@ -2,10 +2,14 @@
 /**------------IMports---------------------- */
 import getMedicines from "@/graphql/medicine/fetch_multiple_query.gql";
 import lists from "~/composables/apollo/lists";
+import { useAuthStore } from "~/stores/auth";
 import useNotify from "~/use/notify";
+
 const router = useRouter();
 
 const { notify } = useNotify();
+
+const { userRoles } = useAuthStore();
 
 const headers = ref([
   {
@@ -35,10 +39,18 @@ const sort = ref([
   },
 ]);
 
+const role = computed(() => {
+  if (userRoles.includes("pharmacist")) {
+    return "pharmacist";
+  }
+  return "user";
+});
+
 const medicines = ref([]);
 const { onResult, onError, loading, refetch } = lists(getMedicines, {
   order: sort,
   limit,
+  role,
 });
 onResult((result) => {
   if (result.data?.medicines) {
@@ -47,16 +59,15 @@ onResult((result) => {
 });
 onError((error) => {
   notify({
-    title: "Some thing went wrong",
-    description: error.message,
-
+    title: "Network Error",
+    description: "Please check your internet connection",
     cardClass: "bg-red-200",
   });
 });
 
-function rowClick(item) {
-  router.push(`/pharmacies/${item.id}`);
-}
+// function rowClick(item) {
+//   router.push(`/pharmacies/${item.id}`);
+// }
 </script>
 
 <template>
@@ -70,23 +81,24 @@ function rowClick(item) {
         Total most searched medicines
       </h2>
 
-      <NuxtLink
+      <!-- <NuxtLink
         to="/medicines"
         class="px-5 py-2 font-medium rounded-full text-primary-700 bg-primary-50 dark:bg-primary-dark-800 dark:text-primary-100 hover:bg-primary-100 dark:hover:bg-primary-dark-700 hover:text-primary-800 dark:hover:text-primary-100"
       >
         See all
-      </NuxtLink>
+      </NuxtLink> -->
     </div>
 
     <PTable
       :headers="headers"
       :items="medicines"
-      :loading="false"
+      :loading="loading"
       row-head-style="!bg-haze-100 dark:!bg-primary-dark-800 dark:!text-white"
       supporter-class="!border-0"
       no-item-class="!min-h-52"
       full-row-class="dark:hover:!bg-primary-dark-800"
       row-style="!rounded-none"
+      :sort="sort"
       @click:row="rowClick"
     >
       <template #name="{ item }">

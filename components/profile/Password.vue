@@ -154,7 +154,9 @@ const passwordChange = handleSubmit(() => {
           </div>
 
           <div class="w-1/2 mt-8">
-            <button class="w-full py-3 text-white rounded bg-primary-600">
+            <button
+              class="w-full py-3 text-white rounded min-h-[55px] bg-primary-600"
+            >
               <span v-if="!changePasswordLoading">Update</span>
               <Icon v-else name="eos-icons:bubble-loading" />
             </button>

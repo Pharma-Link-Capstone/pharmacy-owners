@@ -12,9 +12,12 @@ import {
 import { appNavigation } from "~/helper/data/navigation";
 import { useAuthStore } from "~/stores/auth";
 
+import notificationListQUery from "@/graphql/notification/list.gql";
+import lists from "~/composables/apollo/lists";
+
 const router = useRouter();
 
-const { user, $reset } = useAuthStore();
+const { user, $reset, userRoles } = useAuthStore();
 
 const { onLogout } = useApollo();
 
@@ -40,16 +43,19 @@ const handleLogout = () => {
   $reset();
   localStorage.removeItem("PhID");
   router.push("/login");
+  setTimeout(() => {
+    changeColorPreference("light");
+  }, 1000);
 };
 
 const entryOption = ref([
   {
-    text: "Inventory",
-    value: "inventory",
+    text: "Medicines",
+    value: "medicines",
   },
   {
-    text: "Sales",
-    value: "sales",
+    text: "Transactions",
+    value: "transactions",
   },
 ]);
 
@@ -59,18 +65,44 @@ const { handleSubmit } = useForm({});
 
 const searchTerm = ref("");
 const handleSearch = handleSubmit((values) => {
-  if (entry.value.value === "inventory") {
+  if (entry.value.value === "medicines") {
     router.push("/app/inventory?q=" + searchTerm.value);
-  } else if (entry.value.value === "sales") {
+  } else if (entry.value.value === "transactions") {
     router.push("/app/sales?q=" + searchTerm.value);
   }
 });
-
+/*----------------------Notification---------------------- */
 const openNotification = ref(false);
+
+/* --------------------------- Fetch Notifications --------------------------- */
+const notificationCount = ref(0);
+const role = computed(() => {
+  if (userRoles?.includes("pharmacist]")) {
+    return "pharmacist";
+  } else {
+    return "user";
+  }
+});
+const filter = ref({
+  is_seen: {
+    _eq: false,
+  },
+});
+const { onResult: notificationOnResult } = lists(notificationListQUery, {
+  filter,
+  role,
+  poll: ref(3000),
+});
+
+notificationOnResult((result) => {
+  if (result.data?.notification_aggregate) {
+    notificationCount.value =
+      result.data?.notification_aggregate?.aggregate?.count;
+  }
+});
 </script>
 <template>
   <!-- ---------------Notification--------------- -->
-
   <CommonNotification
     v-if="openNotification"
     v-model="openNotification"
@@ -91,14 +123,10 @@ const openNotification = ref(false);
 
   <div class="flex items-center justify-between w-full h-full px-5">
     <div class="flex items-center text-sm font-medium text-gray-400 gap-x-2">
-      <button class="cursor-pointer">
-        <Icon name="fontisto:nav-icon-grid-a" class="text-sm" />
-      </button>
-      <span>/</span>
-      <button class="cursor-pointer">{{ currentNav.name }}</button>
+      <!-- <CommonBreadcrumb /> -->
     </div>
     <div class="py-2.5 px-8 rounded-full flex items-center gap-x-4">
-      <form @submit.prevent="handleSearch" class="relative">
+      <!-- <form @submit.prevent="handleSearch" class="relative">
         <input
           type="text"
           class="rounded-3xl py-2.5 pl-14 bg-primary-50 dark:bg-primary-dark-800 border-none focus:border-transparent outline-none dark:text-gray-100 text-gray-950 w-full"
@@ -139,17 +167,21 @@ const openNotification = ref(false);
             </MenuItems>
           </Menu>
         </div>
-      </form>
+      </form> -->
       <div
         class="relative flex items-center gap-x-3 text-gray-950 dark:text-gray-400"
       >
         <button class="relative z-50" @click="openNotification = true">
-          <Icon name="humbleicons:bell" class="text-2xl cursor-pointer" />
-          <!-- <span
-          v-show="unSeedLength > 0"
-          class="absolute z-50 text-sm font-medium text-red-600 rounded-full left-4 bottom-2 -right-1"
-          >{{ unSeedLength }}</span
-        > -->
+          <Icon
+            :name="notificationCount > 0 ? 'mdi:bell' : 'mdi:bell-outline'"
+            class="text-2xl cursor-pointer"
+            :class="{ 'text-gray-400': notificationCount > 0 }"
+          />
+          <span
+            v-show="notificationCount > 0"
+            class="absolute top-0 z-50 flex items-center justify-center w-4 h-4 text-sm font-medium text-white bg-red-600 rounded-full -right-1 aspect-square"
+            >{{ notificationCount }}</span
+          >
         </button>
 
         <Popover class="relative">
@@ -227,11 +259,11 @@ const openNotification = ref(false);
             <MenuItem v-slot="{ active }">
               <nuxt-link
                 :class="{ 'bg-primary-50 dark:bg-primary-dark-700': active }"
-                to="/app/settings"
+                to="/app/profile"
                 class="px-3 py-2 text-left rounded-3xl"
               >
                 <Icon name="ic:round-settings" class="mr-2 text-xl" />
-                Profile & Privacy
+                Profile & Account
               </nuxt-link>
             </MenuItem>
             <MenuItem v-slot="{ active }">

@@ -12,11 +12,19 @@ const currentPath = computed(() => router.currentRoute.value.path);
 
 const openConfirmationModal = ref(false);
 
+const changeColorPreference = (preference) => {
+  useColorMode().value = preference;
+  useColorMode().preference = preference;
+};
+
 const handleLogout = () => {
   onLogout("authenticated");
   $reset();
   localStorage.removeItem("PhID");
   router.push("/login");
+  setTimeout(() => {
+    changeColorPreference("light");
+  }, 1000);
 };
 </script>
 <template>
@@ -32,12 +40,13 @@ const handleLogout = () => {
     confirm-button-class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
     @confirm="handleLogout"
   ></Modals-confirmation>
+
   <div class="flex flex-col justify-between w-full h-full px-10 py-5">
     <div>
       <div>
-        <div class="flex items-center justify-center">
+        <nuxt-link to="/app" class="flex items-center justify-center">
           <img src="/images/pharmalink-logo.png" alt="Pharmalink logo" />
-        </div>
+        </nuxt-link>
       </div>
       <nav class="flex flex-col gap-5 mt-10">
         <nuxt-link
@@ -59,7 +68,7 @@ const handleLogout = () => {
     </div>
     <div class="mb-16">
       <button
-        class="flex items-center justify-start w-full gap-3 px-5 mt-8 text-xl"
+        class="flex items-center justify-start w-full gap-3 px-5 mt-8 text-xl dark:text-white"
         @click="openConfirmationModal = true"
       >
         <Icon name="mdi:logout" class="text-xl" />

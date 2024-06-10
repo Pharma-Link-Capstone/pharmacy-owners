@@ -48,6 +48,33 @@ const onSubmit = handleSubmit(() => {
           </template>
         </P-FileUploadWrapper>
       </div>
+
+      <div>
+        <h3 class="mt-3 mb-2">
+          Pharmacy Cover Image <span class="ml-1 text-red-600">*</span>
+        </h3>
+        <P-FileUploadWrapper
+          v-model="pharmacy.cover_image"
+          name="pharmacy_cover"
+          rules="required"
+          placeholder="Upload images PNG, JPG and GIF files are allowed"
+          accept="image/*"
+        >
+          <template #wrapper>
+            <div
+              class="flex flex-col items-center justify-center w-full gap-4 p-8 border border-gray-300 border-dashed rounded-lg cursor-pointer bg-haze-50"
+            >
+              <Icon name="uil:cloud-upload" class="w-20 h-20" />
+              <div class="flex flex-col mx-auto text-center input_field w-max">
+                <div>
+                  Upload images PNG, JPG and GIF files are allowed
+                  <span class="text-primary-600">Browse</span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </P-FileUploadWrapper>
+      </div>
       <div class="mt-3">
         <P-Textfield
           name="pharmacy_name"

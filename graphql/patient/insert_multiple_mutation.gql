@@ -1,0 +1,5 @@
+mutation InsertPatients($objects: [patients_insert_input!]!) {
+  insert_patients(objects: $objects) {
+    affected_rows
+  }
+}
