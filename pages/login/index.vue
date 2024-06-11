@@ -73,7 +73,7 @@ onLoginDone(async ({ data }) => {
 
 onLoginError((error) => {
   if (error.message.includes("Unverified")) {
-    router.push("/signup/verify");
+    router.push("/verify-email/success?email=" + email.value);
   } else {
     notify({
       title: "Login Failed",

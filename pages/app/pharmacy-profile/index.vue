@@ -81,7 +81,7 @@ const ratingValue = computed(() => {
 });
 
 useHead({
-  title: "Pharmacy Profile | Pharmalink",
+  title: "Pharmacy Profile | Pharmalink Portal",
   meta: [
     { name: "description", content: "This is a profile page for the pharmacy" },
   ],
@@ -119,6 +119,7 @@ useHead({
               <!-- Rating -->
               <div class="!w-fit grid grid-cols-2 items-center gap-5">
                 <NuxtRating
+                  :key="ratingValue"
                   :read-only="true"
                   :ratingValue="ratingValue"
                   class="col-span-1"

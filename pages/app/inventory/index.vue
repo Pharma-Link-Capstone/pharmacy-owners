@@ -265,7 +265,7 @@ function isTimeInThePast(givenTime) {
 }
 
 useHead({
-  title: "Medicines | Pharmalink",
+  title: "Medicines | Pharmalink Portal",
   meta: [
     {
       name: "description",

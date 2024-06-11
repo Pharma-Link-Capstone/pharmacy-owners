@@ -158,9 +158,9 @@ const handleSubmission = () => {
 </script>
 <template>
   <div class="flex items-center justify-center w-full h-full">
-    <div class="w-full py-5 bg-white rounded-2xl">
+    <div class="w-full py-5 bg-white dark:bg-primary-dark-900 rounded-2xl">
       <div class="flex gap-3 px-5">
-        <h1 class="text-3xl">Edit Profile</h1>
+        <h1 class="text-3xl dark:text-white">Edit Profile</h1>
       </div>
       <div class="px-5 mt-10">
         <!-- Stepper -->
@@ -178,7 +178,7 @@ const handleSubmission = () => {
             ></div>
             <div class="flex items-center gap-3 mt-3">
               <div
-                class="w-[50px] aspect-square h-[50px] rounded-full border-2 border-gray-600 flex items-center justify-center font-bold text-2xl"
+                class="w-[50px] aspect-square h-[50px] rounded-full border-2 border-gray-600 dark:text-white flex items-center justify-center font-bold text-2xl"
                 :class="
                   currentStepIndex > index
                     ? 'text-primary-600 border-primary-600'
@@ -189,7 +189,7 @@ const handleSubmission = () => {
               >
                 0{{ index + 1 }}
               </div>
-              <div>
+              <div class="dark:text-white">
                 <p class="text-sm">STEP</p>
                 <p class="text-base">{{ step }}</p>
               </div>
@@ -198,7 +198,7 @@ const handleSubmission = () => {
         </div>
 
         <!-- Form -->
-        <div class="mt-10" v-if="!fetchPharmacyLoading">
+        <div class="mt-10 dark:text-white" v-if="!fetchPharmacyLoading">
           <Pharmacy-Form-BasicInfo
             v-model="pharmacy"
             v-if="currentStepIndex == 0"

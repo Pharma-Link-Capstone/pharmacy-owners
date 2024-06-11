@@ -170,11 +170,15 @@ const showTransactionChart = computed(() => {
 });
 
 const showTrafficChart = computed(() => {
-  return role.value == "pharmacist" && dailyVisit.value?.length > 0;
+  return (
+    role.value == "pharmacist" &&
+    dailyVisit.value?.length > 0 &&
+    dailyVisit.value[0].data?.length > 0
+  );
 });
 
 useHead({
-  title: "Dashboard | Pharmalink",
+  title: "Dashboard | Pharmalink Portal",
   meta: [
     {
       name: "description",
@@ -202,7 +206,6 @@ useHead({
     </div>
 
     <!--  -->
-
     <div class="grid grid-cols-12 gap-10 mt-5">
       <!-- Inventory Chart -->
       <!-- Chart Skeleton Loader -->

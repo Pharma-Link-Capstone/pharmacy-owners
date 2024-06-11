@@ -143,6 +143,10 @@ function getFileType(file) {
     return "Image";
   }
 }
+
+const reroute = (file) => {
+  window.open(file, "_blank");
+};
 </script>
 <template>
   <div>
@@ -195,7 +199,7 @@ function getFileType(file) {
                 v-for="(i, index) in uploadedFiles"
                 :key="index"
                 class="flex items-center justify-between w-full p-2"
-                @click="makeThumbnail(i)"
+                @click="[makeThumbnail(i), reroute(i)]"
               >
                 <div class="flex items-center w-full gap-3">
                   <video

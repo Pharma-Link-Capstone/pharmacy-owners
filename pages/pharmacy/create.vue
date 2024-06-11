@@ -115,7 +115,7 @@ const {
   mutate: deleteRelationsMutation,
   loading: deleteRelationsLoading,
   onDone: onDeleteRelationsDone,
-} = mutator(DeleteRelationship, "pharmacist");
+} = mutator(DeleteRelationship, "user");
 
 const {
   mutate: insertPlaceMutation,

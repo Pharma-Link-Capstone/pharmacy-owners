@@ -4,7 +4,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Settings | Pharmalink",
+  title: "Settings | Pharmalink Portal",
   meta: [
     {
       name: "description",

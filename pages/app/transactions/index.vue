@@ -168,7 +168,7 @@ const sum = (arr) => {
 };
 
 useHead({
-  title: "Transactions | Pharmalink",
+  title: "Transactions | Pharmalink Portal",
   meta: [
     {
       name: "description",

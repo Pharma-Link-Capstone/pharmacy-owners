@@ -5,6 +5,9 @@ export default defineNuxtConfig({
     // pageTransition: { name: "page", mode: "out-in" },
     // layoutTransition: { name: "layout", mode: "out-in" },
   },
+  devServer: {
+    port: 3000,
+  },
   ssr: false,
   spaLoadingTemplate: false,
   devtools: { enabled: true },
